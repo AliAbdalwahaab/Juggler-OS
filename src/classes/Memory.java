@@ -1,4 +1,4 @@
-package src.resources;
+package src.classes;
 
 public class Memory {
 }

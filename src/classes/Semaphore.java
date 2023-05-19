@@ -8,11 +8,11 @@ public class Semaphore {
     public boolean userOutputUsed;
     public boolean fileUsed;
 
-    public boolean semWait(ProcessState resource, int pid){
-
+    public static boolean semWait(ProcessState resource, int pid){
+        return false;
     }
 
-    public boolean semSignal(ProcessState resource, int pid){
-
+    public static boolean semSignal(ProcessState resource, int pid){
+        return false;
     }
 }

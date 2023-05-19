@@ -16,37 +16,56 @@ public class Scheduler {
 
     public int getCurrentProcess(){
         // if the running process still has cycles to get executed then it is the current process.
-        if (runningPid.key > 0) {
-            return runningPid.val;
+        if (runningPid != null) {
+            if (runningPid.key > 0) {
+                return runningPid.val;
+            }
+            else { // the first process in the ready queue is going to be the running process.
+                // Note: I did not remove the process from the ready queue.
+                return readyQueue.getFront();
+            }
         }
-        else { // the first process in the ready queue is going to be the running process.
-            // Note: I did not remove the process from the ready queue.
-            return readyQueue.getFront();
+        else {
+            return -1;
         }
     }
 
     public void addFromRunningToReadyQueue () {
-        int prevRunningProccesID = runningPid.val;
-        readyQueue.add(prevRunningProccesID);
-        // TODO in OSKernel class: we need also to go the memory and change the state of the old running process from running to ready.
-        // set the new running process from the ready queue.
-        addFromReadyToRunning(readyQueue.remove());
+        if (runningPid != null) {
+            int prevRunningProccesID = runningPid.val;
+            readyQueue.add(prevRunningProccesID);
+            // TODO in OSKernel class: we need also to go the memory and change the state of the old running process from running to ready.
+            // set the new running process from the ready queue.
+            if (!readyQueue.isEmpty()) {
+                setToRunning(readyQueue.remove());
+            }
+            else {
+                runningPid = null;
+            }
+        }
     }
 
     public void addFromRunningToBlockedQueue () {
-        // we only block a process if that process is currently running and
-        // requests the use of a resource while it is being used by another process.
-        // hence you should only block currently running processes.
-        // once the current process is blocked, the scheduler should schedule the next process in the ready queue to start executing.
-        // first, we are going to alter the currently running process's state from running to blocked.
-        int prevRunningProccesID = runningPid.val;
-        blockedQueue.add(prevRunningProccesID);
-        // TODO in OSKernel class: we need also to go the memory and change the state of the old running process from running to blocked.
-        // set the new running process from the ready queue.
-        addFromReadyToRunning(readyQueue.remove());
+        if (runningPid != null) {
+            // we only block a process if that process is currently running and
+            // requests the use of a resource while it is being used by another process.
+            // hence you should only block currently running processes.
+            // once the current process is blocked, the scheduler should schedule the next process in the ready queue to start executing.
+            // first, we are going to alter the currently running process's state from running to blocked.
+            int prevRunningProccesID = runningPid.val;
+            blockedQueue.add(prevRunningProccesID);
+            // TODO in OSKernel class: we need also to go the memory and change the state of the old running process from running to blocked.
+            // set the new running process from the ready queue.
+            if (!readyQueue.isEmpty()) {
+                setToRunning(readyQueue.remove());
+            }
+            else {
+                runningPid = null;
+            }
+        }
     }
 
-    public void addFromReadyToRunning (int pid) {
+    public void setToRunning (int pid) {
         // TODO in OSKernel class: if the next running process is not in memory hence we need to load it from disk to memory (either by swapping or directly loading it if there is enough contiguous space).
         // TODO in OSKernel class: we need also to go the memory and change the state of the new running process from ready to running.
         runningPid.val = pid;
@@ -76,7 +95,7 @@ public class Scheduler {
         }
         else {
             // if the process already exist, then we are going to look whether it is blocked or running and add it to the ready queue.
-            if (pid == runningPid.key) { // the process already exists and it is running.
+            if (runningPid != null && pid == runningPid.key) { // the process already exists and it is running.
                 addFromRunningToReadyQueue();
             }
             else { // the process already exists and it is blocked.
@@ -86,10 +105,13 @@ public class Scheduler {
     }
 
     public void oneCyclePassed () {
-        runningPid.key--;
-        if (runningPid.key == 0) {
-            addFromRunningToReadyQueue();
+        if (runningPid != null) {
+            runningPid.key--;
+            if (runningPid.key == 0) {
+                addFromRunningToReadyQueue();
+            }
         }
+        cycles++;
     }
 
     public void setTimeSlice (int timeSlice) {

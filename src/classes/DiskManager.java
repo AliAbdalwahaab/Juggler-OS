@@ -1,6 +1,7 @@
 package classes;
 
 import java.io.FileWriter;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -27,11 +28,15 @@ public class DiskManager {
 
         return null;
     }
-    public static Process getProcess(int pidOnDisk){
+    public Process getProcess(int pidOnDisk){
+        for(Process p: disk){
+            if(p.pid == pidOnDisk)
+                return p;
+        }
         return null;
     }
 
-    public void serializeProcesses(){
+    public void serializeProcesses() throws Exception{
 
     }
 

@@ -111,7 +111,7 @@ public class Memory {
 
     }
 
-    public boolean areSwappable(int pidFromRam, int pidFromDisk){
+    public boolean areSwappable(int pidFromRam, int pidFromDisk, DiskManager disk){
         // get process base address
         int base = getPidBase(pidFromRam);
         if (base == -1) {
@@ -121,7 +121,7 @@ public class Memory {
         int ramProcessSize = startEndBlock.val - startEndBlock.key + 1;
 
         // get disk process
-        Process diskProcess = DiskManager.getProcess(pidFromDisk);
+        Process diskProcess = disk.getProcess(pidFromDisk);
         if (diskProcess == null) {
             System.out.println("Process with pid " + pidFromDisk + " does not exist in disk.");
             return false;

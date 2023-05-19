@@ -1,12 +1,18 @@
 package classes;
 public class Interpreter {
+
+    Memory memory;
+
     public void parseAndExecute(String line, int pid){
         String[] instructionComponents = line.split(" ");
         switch(instructionComponents[0]) {
             case "print":
                 //if a process got to a print instruction then this means it is not blocked
                 //so we can print directly
-
+                Object var = memory.getVariable(pid, instructionComponents[1]);
+                if (var != null) {
+                    System.out.println(var);
+                }
             case "assign":
             case "writeFile":
             case "readFile":

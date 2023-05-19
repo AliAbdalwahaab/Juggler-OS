@@ -6,6 +6,7 @@ public class Interpreter {
 
     Memory memory;
     DiskManager diskManager;
+    Scheduler scheduler;
 
     public void parseAndExecute(String line, int pid) throws Exception {
         String[] instructionComponents = line.split(" ");
@@ -40,10 +41,17 @@ public class Interpreter {
                 //shouldn't i return this data?
                 break;
             case "printFromTo":
+                int from = Integer.parseInt(instructionComponents[1]);
+                int to = Integer.parseInt(instructionComponents[2]);
+                for (int i = from; i <= to; i++) {
+                    System.out.println(i);
+                }
+                break;
             case "semWait":
                 boolean available = Semaphore.semWait(getResourceType(instructionComponents[1]), pid);
                 if (!available) {
                     //block process
+                    scheduler.addFromRunningToBlockedQueue();
                 }
             case "semSignal":
                 Semaphore.semSignal(getResourceType(instructionComponents[1]), pid); break;

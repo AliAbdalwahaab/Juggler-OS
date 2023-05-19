@@ -1,6 +1,5 @@
 package classes;
 import java.util.Vector;
-import javafx.util.Pair;
 
 public class Process {
     public int pid;

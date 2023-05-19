@@ -1,4 +1,4 @@
-package src.classes;
+package classes;
 
 import java.util.HashSet;
 
@@ -8,7 +8,7 @@ public class Memory {
     static HashSet<Integer> pids;
     static int pidCounter;
 
-    public Memory(){
+    public Memory() {
         availableSpace = 40;
         pids = new HashSet<Integer>();
         pidCounter = 0;

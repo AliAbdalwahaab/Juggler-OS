@@ -1,10 +1,7 @@
 package classes;
-
-import javafx.util.Pair;
-
 public class Scheduler {
-    public SchedulerQueue readyQueue;
-    public SchedulerQueue blockedQueue;
+    public classes.SchedulerQueue readyQueue;
+    public classes.SchedulerQueue blockedQueue;
     public Pair<Integer, Integer> runningPid;
     public int timeSlice;
     public int cycles;

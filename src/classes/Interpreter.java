@@ -1,5 +1,4 @@
 package classes;
-
 public class Interpreter {
     public void parseAndExecute(String line, int pid){
         String[] instructionComponents = line.split(" ");
@@ -11,7 +10,7 @@ public class Interpreter {
             case "readFile":
             case "printFromTo":
             case "semWait":
-                Semaphore.semWait(ProcessState.RUNNING, pid);
+                Semaphore.semWait(ResourceType.userOutput, pid);
             case "semSignal":
         }
 

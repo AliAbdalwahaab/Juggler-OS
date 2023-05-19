@@ -1,4 +1,4 @@
-package src.classes;
+package classes;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -22,7 +22,7 @@ public class DiskManager {
 
         return null;
     }
-    public Process getProcess(int pidOnDisk){
+    public static Process getProcess(int pidOnDisk){
         return null;
     }
 

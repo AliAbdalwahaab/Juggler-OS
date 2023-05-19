@@ -22,7 +22,7 @@ public class DiskManager {
 
         return null;
     }
-    public Process getProcess(int pidOnDisk){
+    public static Process getProcess(int pidOnDisk){
         return null;
     }
 

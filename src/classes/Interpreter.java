@@ -11,6 +11,7 @@ public class Interpreter {
             case "readFile":
             case "printFromTo":
             case "semWait":
+                Semaphore.semWait(ProcessState.RUNNING, pid);
             case "semSignal":
         }
 

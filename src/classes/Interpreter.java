@@ -1,7 +1,7 @@
 package src.classes;
 
 public class Interpreter {
-    public void parseAndExecute(String line){
+    public void parseAndExecute(String line, int pid){
         String[] instructionComponents = line.split(" ");
         switch(instructionComponents[0]) {
             case "print":
@@ -13,7 +13,6 @@ public class Interpreter {
             case "semWait":
             case "semSignal":
         }
-
 
     }
 }

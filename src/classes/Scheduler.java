@@ -1,14 +1,16 @@
-package src.classes;
+package classes;
+
+import javafx.util.Pair;
 
 public class Scheduler {
     public SchedulerQueue readyQueue;
     public SchedulerQueue blockedQueue;
-    public Pair<int, int> runningPid;
+    public Pair<Integer, Integer> runningPid;
     public int timeSlice;
     public int cycles;
 
     public int getCurrentProcess(){
-
+        return 0;
     }
 
     public void blockProcess(int pid){

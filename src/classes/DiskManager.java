@@ -1,19 +1,25 @@
-package src.classes;
+package classes;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Vector;
 
 public class DiskManager {
     public Vector<Process> disk;
+    public static final String dir = "src/main/resources/";
 
-    public void writeFile(String fileName, Object data){
+    public void writeFile(String fileName, String data){
 
     }
 
-    public Object readFile(String fileName){
-        return null;
+    public static String readFile(String fileName) throws Exception{
+        String data = "";
+        data = new String(Files.readAllBytes(Paths.get(dir + fileName)));
+        return data;
     }
 
     public Process swapProcessFromRam(int pidOnDisk, Process processOnRam){
+
         return null;
     }
     public Process getProcess(int pidOnDisk){
@@ -27,4 +33,11 @@ public class DiskManager {
     public void deserializeProcesses(){
 
     }
+
+    public static void main(String[] args) throws Exception {
+        String x;
+        x = readFile("hmm");
+        System.out.println();
+    }
+
 }

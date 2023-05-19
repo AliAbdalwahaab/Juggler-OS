@@ -1,7 +1,7 @@
 package classes;
 public class Scheduler {
-    public classes.SchedulerQueue readyQueue;
-    public classes.SchedulerQueue blockedQueue;
+    public SchedulerQueue readyQueue;
+    public SchedulerQueue blockedQueue;
     public Pair<Integer, Integer> runningPid;
     public int timeSlice;
     public int cycles;

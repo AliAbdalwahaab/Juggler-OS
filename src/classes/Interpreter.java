@@ -41,7 +41,10 @@ public class Interpreter {
                 break;
             case "printFromTo":
             case "semWait":
-                Semaphore.semWait(getResourceType(instructionComponents[1]), pid); break;
+                boolean available = Semaphore.semWait(getResourceType(instructionComponents[1]), pid);
+                if (!available) {
+                    //block process
+                }
             case "semSignal":
                 Semaphore.semSignal(getResourceType(instructionComponents[1]), pid); break;
         }

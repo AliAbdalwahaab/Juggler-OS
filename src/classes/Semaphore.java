@@ -1,4 +1,4 @@
-package src.classes;
+package classes;
 
 public class Semaphore {
     public SchedulerQueue userInputBlockedQueue;
@@ -9,10 +9,10 @@ public class Semaphore {
     public boolean fileUsed;
 
     public boolean semWait(ProcessState resource, int pid){
-
+        return true;
     }
 
     public boolean semSignal(ProcessState resource, int pid){
-
+        return true;
     }
 }

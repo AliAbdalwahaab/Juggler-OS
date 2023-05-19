@@ -1,7 +1,4 @@
-package classes;
-
-import classes.DiskManager;
-import classes.Memory;
+package src.classes;
 
 public class OSKernel {
     public Memory memory;

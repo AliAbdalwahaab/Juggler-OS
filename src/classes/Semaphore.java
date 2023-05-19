@@ -1,9 +1,9 @@
-package classes;
+package src.classes;
 
 public class Semaphore {
-    public classes.SchedulerQueue userInputBlockedQueue;
-    public classes.SchedulerQueue userOutputBlockedQueue;
-    public classes.SchedulerQueue fileBlockedQueue;
+    public SchedulerQueue userInputBlockedQueue;
+    public SchedulerQueue userOutputBlockedQueue;
+    public SchedulerQueue fileBlockedQueue;
     public boolean userInputUsed;
     public boolean userOutputUsed;
     public boolean fileUsed;

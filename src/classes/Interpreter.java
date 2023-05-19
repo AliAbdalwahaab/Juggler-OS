@@ -1,4 +1,4 @@
-package classes;
+package src.classes;
 public class Interpreter {
     public void parseAndExecute(String line, int pid){
         String[] instructionComponents = line.split(" ");

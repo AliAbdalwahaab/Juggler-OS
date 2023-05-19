@@ -8,6 +8,6 @@ public class OSKernel {
     public Semaphore semaphore;
 
     public void runOS(){
-        
+
     }
 }

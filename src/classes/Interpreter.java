@@ -1,4 +1,7 @@
 package classes;
+
+import java.util.Scanner;
+
 public class Interpreter {
 
     Memory memory;
@@ -15,7 +18,16 @@ public class Interpreter {
                 }
                 break;
             case "assign":
-
+                String varName = instructionComponents[1];
+                switch(instructionComponents[2]) {
+                    case "readFile":
+                    case "input":
+                        Scanner sc = new Scanner(System.in);
+                        System.out.print("Please enter a value:");
+                        String input = sc.nextLine();
+                        memory.assignVariable(varName, input, pid);
+                }
+                break;
             case "writeFile":
             case "readFile":
             case "printFromTo":

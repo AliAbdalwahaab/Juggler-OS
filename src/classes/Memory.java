@@ -3,7 +3,7 @@ package classes;
 import java.util.HashSet;
 
 public class Memory {
-    static Object[] memory = new Object[40];
+    static Object[] memory = new Object[40]; // Store PCBs at the start of each process block
     static int availableSpace;
     static HashSet<Integer> pids;
     static int pidCounter;
@@ -14,12 +14,60 @@ public class Memory {
         pidCounter = 0;
     }
 
+    public int getPidBase(int pid) {
+        int k = 0;
+        Pair<Integer, Integer> startEndBlock = new Pair<>();
+        for (int base = 0, process = 0; process < pids.size(); base += k, process++) {
+            startEndBlock = (Pair<Integer, Integer>) memory[base + 3];
+            if ((int) memory[base] != pid) {
+                k = startEndBlock.val - startEndBlock.key + 1;
+            } else {
+                return base; // pid found
+            }
+        }
+        return -1; // pid not found
+    }
+
     public void assignVariable(String name, Object value, int pid){
+        if (!pids.contains(pid)) {
+            System.out.println("Process with pid " + pid + " does not exist.");
+            return;
+        }
+
+        // get process base address
+        int base = getPidBase(pid);
+        if (base == -1) {
+            System.out.println("Process with pid " + pid + " does not exist. HS inconsistency /!\\");
+            return;
+        }
+
+        boolean variableFound = false;
+        for (int i = 0; i < 3; i++) {
+            if (((Pair<String, Object>)memory[base + 4 + i]).key.equals(name)) {
+                ((Pair<String, Integer>)memory[base + 4 + i]).val = (Integer) value;
+                variableFound = true;
+                break;
+            }
+        }
+
+        if (!variableFound) {
+            System.out.println("Variable " + name + " does not exist in process " + pid + ".");
+        }
 
     }
 
     public String getNextInstruction(int pid){
-        return null;
+        // get process base address
+        int base = getPidBase(pid);
+        if (base == -1) {
+            System.out.println("Process with pid " + pid + " does not exist. HS inconsistency /!\\");
+            return null;
+        }
+
+        // get lines of code base
+        int codeBase = (int) memory[base + 7];
+        int pc = (int) memory[base + 2];
+        return (String) memory[codeBase + pc];
     }
 
     public void removeProcessAndShift(int pid){

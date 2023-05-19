@@ -9,7 +9,7 @@ public class Semaphore {
     public boolean fileUsed;
 
 
-    public boolean semSignal(ResourceType resource, int pid) {
+    public static boolean semSignal(ResourceType resource, int pid) {
         return true;
     }
 

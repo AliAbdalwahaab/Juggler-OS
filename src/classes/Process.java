@@ -1,4 +1,4 @@
-package src.classes;
+package classes;
 import java.util.Vector;
 
 public class Process {

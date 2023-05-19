@@ -1,4 +1,4 @@
-package src.classes;
+package classes;
 
 public enum ResourceType {
     userInput, userOutput, file

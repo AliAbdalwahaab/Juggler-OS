@@ -1,4 +1,4 @@
-package src.classes;
+package classes;
 public class Interpreter {
 
     Memory memory;
@@ -13,14 +13,16 @@ public class Interpreter {
                 if (var != null) {
                     System.out.println(var);
                 }
+                break;
             case "assign":
+
             case "writeFile":
             case "readFile":
             case "printFromTo":
             case "semWait":
-                Semaphore.semWait(getResourceType(instructionComponents[1]), pid);
+                Semaphore.semWait(getResourceType(instructionComponents[1]), pid); break;
             case "semSignal":
-                Semaphore.semSignal(getResourceType(instructionComponents[1]), pid);
+                Semaphore.semSignal(getResourceType(instructionComponents[1]), pid); break;
         }
 
     }

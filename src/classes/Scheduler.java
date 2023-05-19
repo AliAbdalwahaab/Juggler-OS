@@ -117,4 +117,24 @@ public class Scheduler {
     public void setTimeSlice (int timeSlice) {
         this.timeSlice = timeSlice;
     }
+
+    public void removePid (int pid) {
+        if (runningPid != null && runningPid.val == pid) {
+            if (!readyQueue.isEmpty()) {
+                setToRunning(readyQueue.remove());
+            }
+        }
+        else {
+            SchedulerQueue tmpQueue = new SchedulerQueue();
+            while (!readyQueue.isEmpty()) {
+                int currentPid = readyQueue.remove();
+                if (currentPid != pid) {
+                    tmpQueue.add(currentPid);
+                }
+            }
+            while (!tmpQueue.isEmpty()) {
+                readyQueue.add(tmpQueue.remove());
+            }
+        }
+    }
 }

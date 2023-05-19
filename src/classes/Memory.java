@@ -60,7 +60,6 @@ public class Memory {
         if (!variableFound) {
             System.out.println("Variable " + varname + " does not exist in process " + pid + ".");
         }
-
     }
 
     public Object getVariable(int pid, String varname) {
@@ -198,5 +197,21 @@ public class Memory {
         }
         Process p = new Process(pid, state, pc,  variables,  linesOfCode);
         return p;
+    }
+
+    public void setState (int pid,  ProcessState state) {
+        int base = getPidBase(pid);
+        if (base != -1) {
+            memory[base + 1] = state;
+        }
+    }
+
+    public boolean inMememory (int pid) {
+        if (getPidBase(pid) != -1) {
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }

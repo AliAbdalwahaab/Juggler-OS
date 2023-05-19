@@ -15,6 +15,11 @@ public class Memory {
     }
 
     public int getPidBase(int pid) {
+        if (!pids.contains(pid)) {
+            System.out.println("Process with pid " + pid + " does not exist.");
+            return -1;
+        }
+
         int k = 0;
         Pair<Integer, Integer> startEndBlock = new Pair<>();
         for (int base = 0, process = 0; process < pids.size(); base += k, process++) {
@@ -25,26 +30,27 @@ public class Memory {
                 return base; // pid found
             }
         }
+
+        System.out.println("Process with pid " + pid + " does not exist. HS inconsistency /!\\");
         return -1; // pid not found
     }
 
     public void assignVariable(String name, Object value, int pid){
-        if (!pids.contains(pid)) {
-            System.out.println("Process with pid " + pid + " does not exist.");
-            return;
-        }
-
         // get process base address
         int base = getPidBase(pid);
-        if (base == -1) {
-            System.out.println("Process with pid " + pid + " does not exist. HS inconsistency /!\\");
+        if (base == -1) {;
             return;
         }
 
         boolean variableFound = false;
         for (int i = 0; i < 3; i++) {
             if (((Pair<String, Object>)memory[base + 4 + i]).key.equals(name)) {
-                ((Pair<String, Integer>)memory[base + 4 + i]).val = (Integer) value;
+                ((Pair<String, Object>)memory[base + 4 + i]).val = value;
+                variableFound = true;
+                break;
+            } else if (((Pair<String, Object>)memory[base + 4 + i]).key.equals("null")) {
+                ((Pair<String, Object>)memory[base + 4 + i]).key = name;
+                ((Pair<String, Object>)memory[base + 4 + i]).val = value;
                 variableFound = true;
                 break;
             }
@@ -56,7 +62,22 @@ public class Memory {
 
     }
 
-    public String getNextInstruction(int pid){
+    public Object getVariable(int pid, String varname) {
+        // get process base address
+        int base = getPidBase(pid);
+        if (base == -1) {
+            return null;
+        }
+
+        for (int i = 0; i < 3; i++) {
+            if (((Pair<String, Object>)memory[base + 4 + i]).key.equals(varname))
+                return ((Pair<String, Object>)memory[base + 4 + i]).val;
+        }
+        System.out.println("Variable " + varname + " does not exist in process " + pid + ".");
+        return null;
+    }
+
+    public String getNextInstructionAndIncrementPC(int pid){
         // get process base address
         int base = getPidBase(pid);
         if (base == -1) {
@@ -67,6 +88,12 @@ public class Memory {
         // get lines of code base
         int codeBase = (int) memory[base + 7];
         int pc = (int) memory[base + 2];
+        memory[base + 2] = pc + 1; // increment pc
+        Pair<Integer, Integer> startEndBlock = (Pair<Integer, Integer>) memory[base + 3];
+        if (pc > startEndBlock.val) {
+            System.out.println("Process " + pid + " is executing the last instruction.");
+            removeProcessAndShift(pid);
+        }
         return (String) memory[codeBase + pc];
     }
 

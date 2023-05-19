@@ -35,14 +35,18 @@ public class Interpreter {
                 }
                 break;
             case "writeFile":
+                String fileNameForWrite = (String) memory.getVariable(pid, instructionComponents[1]);
+                String dataForWrite = (String) memory.getVariable(pid, instructionComponents[2]);
+                diskManager.writeFile(fileNameForWrite, dataForWrite);
+                break;
             case "readFile":
                 String fileName = instructionComponents[3];
                 String data = diskManager.readFile(fileName);
                 //shouldn't i return this data?
                 break;
             case "printFromTo":
-                int from = Integer.parseInt(instructionComponents[1]);
-                int to = Integer.parseInt(instructionComponents[2]);
+                int from = Integer.parseInt((String) memory.getVariable(pid, instructionComponents[1])); //either this or .toString() the thing
+                int to = Integer.parseInt((String) memory.getVariable(pid, instructionComponents[2]));
                 for (int i = from; i <= to; i++) {
                     System.out.println(i);
                 }
@@ -53,6 +57,7 @@ public class Interpreter {
                     //block process
                     scheduler.addFromRunningToBlockedQueue();
                 }
+                break;
             case "semSignal":
                 Semaphore.semSignal(getResourceType(instructionComponents[1]), pid); break;
         }

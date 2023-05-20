@@ -1,4 +1,4 @@
-package classes;
+package src.classes;
 
 public class Semaphore {
     public SchedulerQueue userInputBlockedQueue;

@@ -1,4 +1,4 @@
-package src.classes;
+package classes;
 
 import java.util.HashSet;
 import java.util.Vector;
@@ -22,9 +22,9 @@ public class Memory {
         }
 
         int k = 0;
-        Pair<Integer, Integer> startEndBlock = new Pair<>();
+        src.classes.Pair<Integer, Integer> startEndBlock = new src.classes.Pair<>();
         for (int base = 0, process = 0; process < pids.size(); base += k, process++) {
-            startEndBlock = (Pair<Integer, Integer>) memory[base + 3];
+            startEndBlock = (src.classes.Pair<Integer, Integer>) memory[base + 3];
             if ((int) memory[base] != pid) {
                 k = startEndBlock.val - startEndBlock.key + 1;
             } else {
@@ -45,13 +45,13 @@ public class Memory {
 
         boolean variableFound = false;
         for (int i = 0; i < 3; i++) {
-            if (((Pair<String, Object>)memory[base + 4 + i]).key.equals(varname)) {
-                ((Pair<String, Object>)memory[base + 4 + i]).val = value;
+            if (((src.classes.Pair<String, Object>)memory[base + 4 + i]).key.equals(varname)) {
+                ((src.classes.Pair<String, Object>)memory[base + 4 + i]).val = value;
                 variableFound = true;
                 break;
-            } else if (((Pair<String, Object>)memory[base + 4 + i]).key.equals("null")) {
-                ((Pair<String, Object>)memory[base + 4 + i]).key = varname;
-                ((Pair<String, Object>)memory[base + 4 + i]).val = value;
+            } else if (((src.classes.Pair<String, Object>)memory[base + 4 + i]).key.equals("null")) {
+                ((src.classes.Pair<String, Object>)memory[base + 4 + i]).key = varname;
+                ((src.classes.Pair<String, Object>)memory[base + 4 + i]).val = value;
                 variableFound = true;
                 break;
             }
@@ -70,8 +70,8 @@ public class Memory {
         }
 
         for (int i = 0; i < 3; i++) {
-            if (((Pair<String, Object>)memory[base + 4 + i]).key.equals(varname))
-                return ((Pair<String, Object>)memory[base + 4 + i]).val;
+            if (((src.classes.Pair<String, Object>)memory[base + 4 + i]).key.equals(varname))
+                return ((src.classes.Pair<String, Object>)memory[base + 4 + i]).val;
         }
         System.out.println("Variable " + varname + " does not exist in process " + pid + ".");
         return null;
@@ -88,7 +88,7 @@ public class Memory {
         int codeBase = (int) memory[base + 7];
         int pc = (int) memory[base + 2];
         memory[base + 2] = pc + 1; // increment pc
-        Pair<Integer, Integer> startEndBlock = (Pair<Integer, Integer>) memory[base + 3];
+        src.classes.Pair<Integer, Integer> startEndBlock = (src.classes.Pair<Integer, Integer>) memory[base + 3];
         if (pc > startEndBlock.val) {
             System.out.println("Process " + pid + " is executing the last instruction.");
             removeProcessAndShift(pid);
@@ -117,7 +117,7 @@ public class Memory {
         if (base == -1) {
             return false;
         }
-        Pair<Integer, Integer> startEndBlock = (Pair<Integer, Integer>) memory[base + 3];
+        src.classes.Pair<Integer, Integer> startEndBlock = (src.classes.Pair<Integer, Integer>) memory[base + 3];
         int ramProcessSize = startEndBlock.val - startEndBlock.key + 1;
 
         // get disk process
@@ -152,7 +152,7 @@ public class Memory {
 
         // add process to memory
         int base = 40 - availableSpace;
-        Pair<Integer, Integer> startEndBlock = new Pair<>(base, base + p.size);
+        src.classes.Pair<Integer, Integer> startEndBlock = new src.classes.Pair<>(base, base + p.size);
         p.pid = pidCounter++;
         p.boundaries = startEndBlock;
         memory[base] = p.pid;
@@ -183,12 +183,12 @@ public class Memory {
             return null;
         }
 
-        ProcessState state = (ProcessState) memory[base + 1];
+        src.classes.ProcessState state = (src.classes.ProcessState) memory[base + 1];
         int pc = (int) memory[base + 2];
-        Pair<Integer, Integer> startEndBlock = (Pair<Integer, Integer>) memory[base + 3];
-        Pair<String, Object>[] variables = new Pair[3];
+        src.classes.Pair<Integer, Integer> startEndBlock = (src.classes.Pair<Integer, Integer>) memory[base + 3];
+        src.classes.Pair<String, Object>[] variables = new src.classes.Pair[3];
         for (int i = 0; i < 3; i++) {
-            variables[i] = (Pair<String, Object>) memory[base + 4 + i];
+            variables[i] = (src.classes.Pair<String, Object>) memory[base + 4 + i];
         }
         int codeBase = (int) memory[base + 7];
         Vector<String> linesOfCode = new Vector<>();
@@ -199,7 +199,7 @@ public class Memory {
         return p;
     }
 
-    public void setState (int pid,  ProcessState state) {
+    public void setState (int pid,  src.classes.ProcessState state) {
         int base = getPidBase(pid);
         if (base != -1) {
             memory[base + 1] = state;

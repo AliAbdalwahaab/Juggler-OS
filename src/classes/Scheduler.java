@@ -1,4 +1,4 @@
-package src.classes;
+package classes;
 public class Scheduler {
     public static SchedulerQueue readyQueue;
     public static SchedulerQueue blockedQueue;

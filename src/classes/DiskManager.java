@@ -1,4 +1,4 @@
-package classes;
+package src.classes;
 
 import java.io.FileWriter;
 import java.io.ObjectOutputStream;

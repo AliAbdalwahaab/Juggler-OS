@@ -23,3 +23,6 @@
 hs_err_pid*
 replay_pid*
 /src/Juggler-OS.iml
+/.idea/modules.xml
+/.idea/vcs.xml
+/.idea/misc.xml

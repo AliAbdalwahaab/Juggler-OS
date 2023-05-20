@@ -33,4 +33,8 @@ public class Process {
         this.linesOfCode = linesOfCode;
         this.size = 4 + variables.length + linesOfCode.size();
     }
+
+    public int getPid() {
+        return this.pid;
+    }
 }

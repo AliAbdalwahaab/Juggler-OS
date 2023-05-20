@@ -2,7 +2,7 @@ package src.classes;
 public class Scheduler {
     public static SchedulerQueue readyQueue;
     public static SchedulerQueue blockedQueue;
-    public Pair<Integer, Integer> runningPid;
+    public static Pair<Integer, Integer> runningPid;
     public int timeSlice;
     public int cycles;
 

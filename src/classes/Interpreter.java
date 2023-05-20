@@ -60,6 +60,9 @@ public class Interpreter {
                 break;
             case "semSignal":
                 Semaphore.semSignal(getResourceType(instructionComponents[1]), pid); break;
+            default:
+                System.out.println("Invalid instruction");
+                System.exit(1);
         }
 
     }

@@ -16,6 +16,10 @@ public class SchedulerQueue {
         return queue.removeFirst();
     }
 
+    public int remove(int pid) {
+        return queue.remove(pid);
+    }
+
     public int removeLast() {
         return queue.removeLast();
     }

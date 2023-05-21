@@ -131,7 +131,7 @@ public class Memory {
             }
 
             if (j == startEndBlockCurr.val) {
-                k = 0;
+                k = -1;
             }
 
             memory[j] = memory[i];

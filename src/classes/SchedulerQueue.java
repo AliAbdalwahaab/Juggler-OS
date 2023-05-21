@@ -39,4 +39,8 @@ public class SchedulerQueue {
     public int size() {
         return queue.size();
     }
+
+    public boolean contains(int pid) {
+        return queue.contains(pid);
+    }
 }

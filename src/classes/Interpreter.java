@@ -52,14 +52,14 @@ public class Interpreter {
                 }
                 break;
             case "semWait":
-                boolean available = src.classes.Semaphore.semWait(getResourceType(instructionComponents[1]), pid);
+                boolean available = Semaphore.semWait(getResourceType(instructionComponents[1]), pid);
                 if (!available) {
                     //block process
                     scheduler.addFromRunningToBlockedQueue();
                 }
                 break;
             case "semSignal":
-                src.classes.Semaphore.semSignal(getResourceType(instructionComponents[1]), pid); break;
+                Semaphore.semSignal(getResourceType(instructionComponents[1]), pid); break;
             default:
                 System.out.println("Invalid instruction");
                 System.exit(1);

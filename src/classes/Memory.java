@@ -250,6 +250,7 @@ public class Memory {
                 System.out.println("Process with pid " + p.pid + " cannot be added. Not enough memory, even after attempting a swap.");
                 return -1;
             }
+            disk.addProcess(getProcessBlock(pidToSwap));
             removeProcessAndShift(pidToSwap);
         }
 

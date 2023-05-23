@@ -78,8 +78,12 @@ public class Memory {
         return null;
     }
 
-    public String getNextInstructionAndIncrementPC(int pid, Scheduler scheduler){
+    public String getNextInstructionAndIncrementPC(int pid, DiskManager disk, Scheduler scheduler) throws Exception {
         // get process base address
+        if (!pids.contains(pid)) {
+            swapProcessFromDisk(pid, disk, scheduler);
+        }
+
         int base = getPidBase(pid);
         if (base == -1) {
             return null;
@@ -88,11 +92,12 @@ public class Memory {
         // get lines of code base
         int codeBase = base + 7;
         int pc = (int) memory[base + 2];
+        System.out.println("pid line : "+ memory[codeBase + pc]);
         if (!(((String) memory[codeBase + pc]).contains("readFile") || ((String) memory[codeBase + pc]).contains("input"))) {
             memory[base + 2] = pc + 1; // increment pc
         }
         Pair<Integer, Integer> startEndBlock = (Pair<Integer, Integer>) memory[base + 3];
-        if (pc > startEndBlock.val) {
+        if (pc == startEndBlock.val) {
             System.out.println("Process " + pid + " is executing the last instruction.");
             removeProcessAndShift(pid);
             scheduler.removePid(pid);
@@ -138,18 +143,18 @@ public class Memory {
             Pair<Integer, Integer> startEndBlockCurr = new Pair<>();
             int currBlockSize = 0;
             int j = base;
-            for (int i = startEndBlock.key + 1, k = 0; i < lastPopulatedIndex; i++, j++, k++) {
-                if (k == 3) { // boundary block
-                    startEndBlockCurr = (Pair<Integer, Integer>) memory[i];
-                    currBlockSize = startEndBlockCurr.val - startEndBlockCurr.key + 1;
-                    memory[j] = new Pair<>(j - 3, (j - 3) + currBlockSize - 1);
-                }
-
+            for (int i = startEndBlock.val + 1, k = 0; i < lastPopulatedIndex; i++, j++, k++) {
                 if (k > 3 && j == startEndBlockCurr.val) {
                     k = -1;
                 }
 
-                memory[j] = memory[i];
+                if (k == 3) { // boundary block
+                    startEndBlockCurr = (Pair<Integer, Integer>) memory[i];
+                    currBlockSize = startEndBlockCurr.val - startEndBlockCurr.key + 1;
+                    memory[j] = new Pair<>(j - 3, (j - 3) + currBlockSize - 1);
+                } else {
+                    memory[j] = memory[i];
+                }
             }
 
             // fill the rest of the memory with null
@@ -161,6 +166,9 @@ public class Memory {
                 memory[i] = null;
             }
         }
+
+        System.out.println("AFTER SHIFTING");
+        printMemory();
 
         // update available space
         availableSpace += processSize;
@@ -179,6 +187,8 @@ public class Memory {
 
         // switch with process on disk
         Process onDisk = disk.swapProcessFromRam(pidFromDisk, onRam);
+        System.out.println("process from disk-----");
+        onDisk.printProcess();
 
         // remove process from ram and add process from disk
         removeProcessAndShift(swappableOnRam);
@@ -197,6 +207,7 @@ public class Memory {
         // get disk process
         Process diskProcess = disk.getProcess(pidFromDisk);
         if (diskProcess == null) {
+
             System.out.println("Process with pid " + pidFromDisk + " does not exist in disk.");
             return false;
         }
@@ -360,9 +371,38 @@ public class Memory {
         System.out.println("=====================================");
         System.out.println("|          Memory Contents          |");
         System.out.println("=====================================");
-        for (int i = 0; i < 40; i++) {
-            System.out.println(i + ": " + memory[i]);
+        Pair<Integer, Integer> startEndBlockCurr = new Pair<>();
+        int lastPopulatedIndex = 40 - availableSpace - 1;
+        for (int i = 0, k = 0; i < 40; i++, k++) {
+            String lid = "";
+            boolean separate = false;
+            if (i <= lastPopulatedIndex) {
+                if (k == 3 ) { // boundary block
+                    startEndBlockCurr = (Pair<Integer, Integer>) memory[i];
+                    lid += "BOUNDARIES: ";
+                } else if (k == 0) {
+                    lid += "PID: ";
+
+                } else if (k == 1) {
+                    lid += "STATE: ";
+                } else if (k == 2) {
+                    lid += "PC: ";
+                } else if (k > 3 && k < 7) {
+                    lid += "VAR: ";
+                } else if (k > 6) {
+                    lid += "COMMAND: ";
+                }
+
+                if (k > 3 && startEndBlockCurr != null && i == startEndBlockCurr.val) {
+                    k = -1;
+                    separate = true;
+                }
+            }
+
+            System.out.println(i + "- " + lid + memory[i]);
+            if (separate) System.out.println("-------------------------------------");
         }
         System.out.println("=====================================");
+
     }
 }

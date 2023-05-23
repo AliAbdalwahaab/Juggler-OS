@@ -36,24 +36,42 @@ public class OSKernel {
 
             // get next process from ready queue
             int runningPid = scheduler.getCurrentProcess();
-            memory.printMemory();
+            System.out.println("=====================================");
+            System.out.println("Cycle: " + scheduler.cycles);
+            System.out.print("Ready Queue: ");
+            scheduler.readyQueue.print();
+            System.out.print("Blocked Queue: ");
+            scheduler.blockedQueue.print();
+            System.out.print("UserInput Blocked Queue: ");
+            semaphore.userInputBlockedQueue.print();
+            System.out.print("UserOutput Blocked Queue: ");
+            semaphore.userOutputBlockedQueue.print();
+            System.out.print("File Blocked Queue: ");
+            semaphore.fileBlockedQueue.print();
+
+
+            System.out.println("Running Process ID: " + runningPid);
             if (runningPid == -1) {
                 System.out.println("No process is running");
                 scheduler.oneCyclePassed();
                 continue;
             }
-            String line = memory.getNextInstructionAndIncrementPC(runningPid, scheduler);
+            String line = memory.getNextInstructionAndIncrementPC(runningPid, disk, scheduler);
             interpreter.parseAndExecute(line, runningPid);
             scheduler.oneCyclePassed();
+            memory.printMemory();
+            disk.printDisk();
             processesDone = scheduler.readyQueue.size() + scheduler.blockedQueue.size() == 0 && scheduler.runningPid == null;
-
+            if (processesDone) {
+                System.out.println("All processes done!");
+            } else {
+                System.out.println("New Cycle Starting...");
+            }
         }
     }
 
     public void createProcess(int n) throws Exception {
         // read from text file
-
-
         Vector<String> instructionsVector = new Vector<>();
         BufferedReader br = new BufferedReader(new FileReader("src/Project Programs/Program_" + n + ".txt"));
         while (br.ready()) {
@@ -68,9 +86,10 @@ public class OSKernel {
 
     public void promptUser() throws Exception {
         Scanner sc = new Scanner(System.in);
-        System.out.println("==========================================");
-        System.out.println("       Welcome to the Juggler Kernel!");
-        System.out.println("       ------------------------------     ");
+        System.out.println("==================================================");
+        System.out.println("      -------------------------------------       ");
+        System.out.println("      | Welcome to the Juggler OS Kernel! |       ");
+        System.out.println("      -------------------------------------       ");
         System.out.println("Initating Simulation Parameters...");
         showTerminalLoading();
         String input = "";
@@ -78,14 +97,14 @@ public class OSKernel {
         while(!stop) {
             System.out.print("Input Program Number To Run (X to exit): ");
             input = sc.nextLine();
-            if (input.equals("X")) {
+            if (input.equals("x") || input.equals("X")) {
                 stop = true;
                 break;
             }
             int programNumber = Integer.parseInt(input);
             System.out.print("Input Arrival Cycle Number: ");
             input = sc.nextLine();
-            if (input.equals("X")) {
+            if (input.equals("X") || input.equals("x")) {
                 stop = true;
                 break;
             }
@@ -95,7 +114,7 @@ public class OSKernel {
     }
 
     public static void showTerminalLoading() {
-        int totalFrames = 5;
+        int totalFrames = 15;
         int animationSpeed = 250; // in milliseconds
 
         for (int i = 0; i < totalFrames; i++) {

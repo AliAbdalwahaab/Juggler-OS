@@ -43,4 +43,8 @@ public class SchedulerQueue {
     public boolean contains(int pid) {
         return queue.contains(pid);
     }
+
+    public void print() {
+        System.out.println(queue);
+    }
 }

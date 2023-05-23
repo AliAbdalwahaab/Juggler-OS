@@ -1,9 +1,9 @@
 package classes;
 
 public class Semaphore {
-    public static SchedulerQueue userInputBlockedQueue;
-    public static SchedulerQueue userOutputBlockedQueue;
-    public static SchedulerQueue fileBlockedQueue;
+    public SchedulerQueue userInputBlockedQueue;
+    public SchedulerQueue userOutputBlockedQueue;
+    public SchedulerQueue fileBlockedQueue;
     public static boolean userInputUsed;
     public static boolean userOutputUsed;
     public static boolean fileUsed;
@@ -17,8 +17,9 @@ public class Semaphore {
         fileUsed = false;
     }
 
-    public void semSignal(ResourceType resource, int pid, Scheduler scheduler) {
+    public void semSignal(ResourceType resource, int pid, Scheduler scheduler, DiskManager disk) throws Exception {
         if (scheduler.runningPid.key == pid){ //check if the process letting go of the resource is the running process
+            int unblockPid = -1;
             scheduler.addFromBlockedQueueToReady(pid);
             if (resource.equals(ResourceType.userInput) && userInputUsed) {
 
@@ -26,19 +27,18 @@ public class Semaphore {
                 userInputUsed = false; //Mark the resource as available
 
                 //remove Process from the resource blocked queue if it were there after a failed request before
-                userInputBlockedQueue.remove(pid);
+                if (!userInputBlockedQueue.isEmpty())
+                    unblockPid = userInputBlockedQueue.remove();
 
-
-                return;
             } else if (resource.equals(ResourceType.userOutput) && userOutputUsed) {
 
                 //Mark the resource as available
                 userOutputUsed = false;
 
                 //remove Process from the resource blocked queue if it were there after a failed request before
-                userOutputBlockedQueue.remove(pid);
+                if (!userOutputBlockedQueue.isEmpty())
+                    unblockPid = userOutputBlockedQueue.remove();
 
-                return;
 
             } else if (resource.equals(ResourceType.file) && fileUsed) {
 
@@ -46,14 +46,19 @@ public class Semaphore {
                 fileUsed = false;
 
                 //remove Process from the resource blocked queue if it were there after a failed request before
-                fileBlockedQueue.remove(pid);
-                return;
+                if (!fileBlockedQueue.isEmpty())
+                    unblockPid = fileBlockedQueue.remove();
+
+            }
+            if (unblockPid != -1) {
+                scheduler.addFromBlockedQueueToReady(unblockPid);
+                disk.setState(unblockPid, ProcessState.READY);
             }
         }
     }
 
     public boolean semWait(ResourceType resource, int pid, Scheduler scheduler){
-        //return flase by default if the process is not the running process
+        //return false by default if the process is not the running process
         if (scheduler.runningPid.key == pid) {
 
             // if the resource is available, mark it as used and return true

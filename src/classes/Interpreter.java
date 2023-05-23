@@ -73,7 +73,7 @@ public class Interpreter {
                 }
                 break;
             case "semSignal":
-                semaphore.semSignal(getResourceType(instructionComponents[1]), pid, scheduler); break;
+                semaphore.semSignal(getResourceType(instructionComponents[1]), pid, scheduler, diskManager); break;
             default:
                 System.out.println("Invalid instruction");
                 System.exit(1);
@@ -82,11 +82,6 @@ public class Interpreter {
     }
 
     public ResourceType getResourceType(String resource){
-        if (resource.length() > 5){
-            resource = resource.substring(0, 9);
-        } else {
-            resource = resource.substring(0, 4);
-        }
         switch(resource){
             case "userInput":
                 return ResourceType.userInput;

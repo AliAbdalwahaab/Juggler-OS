@@ -39,4 +39,12 @@ public class Process implements Serializable {
     public int getPid() {
         return this.pid;
     }
+
+    public void printProcess() {
+        System.out.println("Process " + pid + " is " + state + " with pc = " + pc + " and variables = " + variables);
+        System.out.println("Lines of code: ");
+        for (String line : linesOfCode) {
+            System.out.println(line);
+        }
+    }
 }

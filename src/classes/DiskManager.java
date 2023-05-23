@@ -39,14 +39,27 @@ public class DiskManager {
 
     public Process getProcess(int pidOnDisk) throws Exception {
         deserializeProcesses();
-        for(Process p: disk){
-            if(p.pid == pidOnDisk)
+        for (Process p: disk) {
+            if (p.pid == pidOnDisk)
                 return p;
         }
         return null;
     }
 
-    public void addProcess(Process newProcess) throws Exception {deserializeProcesses();
+    public void setState(int pidOnDisk, ProcessState state) throws Exception {
+        deserializeProcesses();
+        for (Process p: disk) {
+            if (p.pid == pidOnDisk) {
+                p.state = state;
+                serializeProcesses();
+                return;
+            }
+        }
+        serializeProcesses();
+    }
+
+    public void addProcess(Process newProcess) throws Exception {
+        deserializeProcesses();
         disk.add(newProcess);
         serializeProcesses();
     }
@@ -63,6 +76,16 @@ public class DiskManager {
         ObjectInputStream ois = new ObjectInputStream(fis);
         disk = (Vector<Process>) ois.readObject();
         ois.close();
+    }
+
+    public void printDisk() throws Exception{
+        deserializeProcesses();
+        System.out.println("=====================================");
+        System.out.println("Disk Contents:");
+        for(Process p: disk){
+            System.out.println("Process ID " + p.pid);
+        }
+        System.out.println("=====================================");
     }
 
     public static void main(String[] args) throws Exception {

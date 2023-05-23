@@ -61,10 +61,7 @@ public class DiskManager {
     }
 
     public static void main(String[] args) throws Exception {
-        DiskManager d = new DiskManager();
-        d.deserializeProcesses();
-        Process theP = d.getProcess(0);
-        System.out.println(theP.linesOfCode.get(0));
+        writeFile("t", "I really the");
     }
 
 }

@@ -14,4 +14,9 @@ public class Pair<I,J> implements Serializable {
     public Pair() {
 
     }
+
+    @Override
+    public String toString() {
+        return "v1: " + key + ", v2: " + val;
+    }
 }

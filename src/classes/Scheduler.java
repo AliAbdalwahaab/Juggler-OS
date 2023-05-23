@@ -5,7 +5,7 @@ import java.util.Vector;
 public class Scheduler {
     public SchedulerQueue readyQueue;
     public SchedulerQueue blockedQueue;
-    public Pair<Integer, Integer> runningPid;
+    public Pair<Integer, Integer> runningPid; // pid, remainning cycles
     public int timeSlice;
     public int cycles;
 
@@ -20,22 +20,28 @@ public class Scheduler {
     public int getCurrentProcess(){
         // if the running process still has cycles to get executed then it is the current process.
         if (runningPid != null) {
-            if (runningPid.key > 0) {
-                return runningPid.val;
+            if (runningPid.val > 0) {
+                return runningPid.key;
             }
-            else { // the first process in the ready queue is going to be the running process.
+            else if (!readyQueue.isEmpty()){ // the first process in the ready queue is going to be the running process.
                 // Note: I did not remove the process from the ready queue.
                 return readyQueue.getFront();
+            } else {
+                return -1;
             }
         }
-        else {
+        else if (!readyQueue.isEmpty()) {// the first process in the ready queue is going to be the running process.
+            //setToRunning(readyQueue.getFront());
+            return readyQueue.getFront();
+        } else {
             return -1;
         }
+
     }
 
     public void addFromRunningToReadyQueue () {
         if (runningPid != null) {
-            int prevRunningProccesID = runningPid.val;
+            int prevRunningProccesID = runningPid.key;
             readyQueue.add(prevRunningProccesID);
             // TODO in OSKernel class: we need also to go the memory and change the state of the old running process from running to ready.
             // set the new running process from the ready queue.
@@ -55,7 +61,7 @@ public class Scheduler {
             // hence you should only block currently running processes.
             // once the current process is blocked, the scheduler should schedule the next process in the ready queue to start executing.
             // first, we are going to alter the currently running process's state from running to blocked.
-            int prevRunningProccesID = runningPid.val;
+            int prevRunningProccesID = runningPid.key;
             blockedQueue.add(prevRunningProccesID);
             // TODO in OSKernel class: we need also to go the memory and change the state of the old running process from running to blocked.
             // set the new running process from the ready queue.
@@ -71,8 +77,7 @@ public class Scheduler {
     public void setToRunning (int pid) {
         // TODO in OSKernel class: if the next running process is not in memory hence we need to load it from disk to memory (either by swapping or directly loading it if there is enough contiguous space).
         // TODO in OSKernel class: we need also to go the memory and change the state of the new running process from ready to running.
-        runningPid.val = pid;
-        runningPid.key = timeSlice;
+        runningPid = new Pair<>(pid, timeSlice);
     }
 
     public void addFromBlockedQueueToReady (int pid) {
@@ -105,12 +110,18 @@ public class Scheduler {
                 addFromBlockedQueueToReady(pid);
             }
         }
+
+        if (runningPid == null) {
+            if (!readyQueue.isEmpty()) {
+                setToRunning(readyQueue.remove());
+            }
+        }
     }
 
     public void oneCyclePassed () {
         if (runningPid != null) {
-            runningPid.key--;
-            if (runningPid.key == 0) {
+            runningPid.val--;
+            if (runningPid.val == 0) {
                 addFromRunningToReadyQueue();
             }
         }
@@ -122,7 +133,7 @@ public class Scheduler {
     }
 
     public void removePid (int pid) {
-        if (runningPid != null && runningPid.val == pid) {
+        if (runningPid != null && runningPid.key == pid) {
             if (!readyQueue.isEmpty()) {
                 setToRunning(readyQueue.remove());
             }

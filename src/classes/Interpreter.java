@@ -17,6 +17,7 @@ public class Interpreter {
     }
 
     public void parseAndExecute(String line, int pid) throws Exception {
+        System.out.println("Process " + pid + " Executing line: " + line);
         String[] instructionComponents = line.split(" ");
         switch(instructionComponents[0]) {
             case "print":
@@ -80,6 +81,11 @@ public class Interpreter {
     }
 
     public ResourceType getResourceType(String resource){
+        if (resource.length() > 5){
+            resource = resource.substring(0, 9);
+        } else {
+            resource = resource.substring(0, 4);
+        }
         switch(resource){
             case "userInput":
                 return ResourceType.userInput;
@@ -87,6 +93,9 @@ public class Interpreter {
                 return ResourceType.userOutput;
             case "file":
                 return ResourceType.file;
+            default:
+                System.out.println("Invalid resource type: " + resource + resource.length());
+
         }
         return null;
     }

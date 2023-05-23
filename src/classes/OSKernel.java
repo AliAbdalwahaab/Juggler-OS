@@ -2,10 +2,7 @@ package classes;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Vector;
+import java.util.*;
 
 public class OSKernel {
     public Memory memory;
@@ -23,9 +20,9 @@ public class OSKernel {
         interpreter = new Interpreter(memory, disk, scheduler, semaphore);
 
         processArrival = new HashMap<>();
-        processArrival.put(0, 1);
-        processArrival.put(1, 2);
-        processArrival.put(4, 3);
+        promptUser();
+
+        disk.serializeProcesses();
 
         boolean firstCycle = true;
 
@@ -37,10 +34,17 @@ public class OSKernel {
 
             // get next process from ready queue
             int runningPid = scheduler.getCurrentProcess();
+            memory.printMemory();
+            if (runningPid == -1) {
+                System.out.println("No process is running");
+                scheduler.oneCyclePassed();
+                continue;
+            }
             String line = memory.getNextInstructionAndIncrementPC(runningPid, scheduler);
             interpreter.parseAndExecute(line, runningPid);
             scheduler.oneCyclePassed();
             processesDone = scheduler.readyQueue.size() + scheduler.blockedQueue.size() == 0;
+
         }
     }
 
@@ -57,16 +61,36 @@ public class OSKernel {
     }
 
     public void promptUser() throws Exception {
+        Scanner sc = new Scanner(System.in);
         System.out.println("==========================================");
         System.out.println("       Welcome to the Juggler Kernel!");
-        System.out.println("       -------------------------          ");
+        System.out.println("       ------------------------------     ");
         System.out.println("Initating Simulation Parameters...");
         showTerminalLoading();
+        String input = "";
+        boolean stop = false;
+        while(!stop) {
+            System.out.print("Input Program Number To Run (X to exit): ");
+            input = sc.nextLine();
+            if (input.equals("X")) {
+                stop = true;
+                break;
+            }
+            int programNumber = Integer.parseInt(input);
+            System.out.print("Input Arrival Cycle Number: ");
+            input = sc.nextLine();
+            if (input.equals("X")) {
+                stop = true;
+                break;
+            }
+            int arrivalCycle = Integer.parseInt(input);
+            processArrival.put(arrivalCycle, programNumber);
+        }
     }
 
     public static void showTerminalLoading() {
-        int totalFrames = 20;
-        int animationSpeed = 200; // in milliseconds
+        int totalFrames = 5;
+        int animationSpeed = 250; // in milliseconds
 
         for (int i = 0; i < totalFrames; i++) {
             try {
@@ -89,6 +113,6 @@ public class OSKernel {
 
     public static void main(String[] args) throws Exception {
         OSKernel os = new OSKernel();
-        os.promptUser();
+        os.runOS();
     }
 }

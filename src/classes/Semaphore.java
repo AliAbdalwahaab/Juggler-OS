@@ -18,7 +18,7 @@ public class Semaphore {
     }
 
     public void semSignal(ResourceType resource, int pid, Scheduler scheduler) {
-        if (scheduler.runningPid.val == pid){ //check if the process letting go of the resource is the running process
+        if (scheduler.runningPid.key == pid){ //check if the process letting go of the resource is the running process
             scheduler.addFromBlockedQueueToReady(pid);
             if (resource.equals(ResourceType.userInput) && userInputUsed) {
 
@@ -54,7 +54,7 @@ public class Semaphore {
 
     public boolean semWait(ResourceType resource, int pid, Scheduler scheduler){
         //return flase by default if the process is not the running process
-        if (scheduler.runningPid.val == pid) {
+        if (scheduler.runningPid.key == pid) {
 
             // if the resource is available, mark it as used and return true
             if (resource.equals(ResourceType.userInput) && !userInputUsed) {

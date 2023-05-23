@@ -86,7 +86,7 @@ public class Memory {
         }
 
         // get lines of code base
-        int codeBase = (int) memory[base + 7];
+        int codeBase = base + 7;
         int pc = (int) memory[base + 2];
         if (!(((String) memory[codeBase + pc]).contains("readFile") || ((String) memory[codeBase + pc]).contains("input"))) {
             memory[base + 2] = pc + 1; // increment pc
@@ -270,8 +270,7 @@ public class Memory {
 
         // add process to memory
         int base = 40 - availableSpace;
-        Pair<Integer, Integer> startEndBlock = new Pair<>(base, base + p.size);
-        p.pid = pidCounter++;
+        Pair<Integer, Integer> startEndBlock = new Pair<>(base, base + p.size - 1);
         p.boundaries = startEndBlock;
         memory[base] = p.pid;
         memory[base + 1] = p.state;
@@ -330,5 +329,15 @@ public class Memory {
 
     public int getNewProcessId() {
         return pidCounter++;
+    }
+
+    public void printMemory() {
+        System.out.println("=====================================");
+        System.out.println("|          Memory Contents          |");
+        System.out.println("=====================================");
+        for (int i = 0; i < 40; i++) {
+            System.out.println(i + ": " + memory[i]);
+        }
+        System.out.println("=====================================");
     }
 }

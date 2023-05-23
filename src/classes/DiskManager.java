@@ -1,8 +1,6 @@
 package classes;
 
-import java.io.FileWriter;
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Vector;
@@ -49,26 +47,23 @@ public class DiskManager {
     }
 
     public void serializeProcesses() throws Exception{
-
+        FileOutputStream fos = new FileOutputStream(dir + "disk.tmp");
+        ObjectOutputStream oos = new ObjectOutputStream(fos);
+        oos.writeObject(disk);
+        oos.close();
     }
 
-    public void deserializeProcesses(){
-
+    public void deserializeProcesses() throws Exception{
+        FileInputStream fis = new FileInputStream(dir + "disk.tmp");
+        ObjectInputStream ois = new ObjectInputStream(fis);
+        disk = (Vector<Process>) ois.readObject();
+        ois.close();
     }
 
     public static void main(String[] args) throws Exception {
-        Vector<String> l = new Vector<>();
-        l.add("sh");
-        Process p1 = new Process(l, 0);
-        Vector<String> l2= new Vector<>();
-        l2.add("sdf");
-        Process p2 = new Process(l2, 0);
         DiskManager d = new DiskManager();
-        d.addProcess(p1);
+        d.deserializeProcesses();
         Process theP = d.getProcess(0);
-        System.out.println(theP.linesOfCode.get(0));
-        d.swapProcessFromRam(0, p2);
-        theP = d.getProcess(0);
         System.out.println(theP.linesOfCode.get(0));
     }
 

@@ -1,7 +1,8 @@
 package classes;
+import java.io.Serializable;
 import java.util.Vector;
 
-public class Process {
+public class Process implements Serializable {
     public int pid;
     public ProcessState state;
     public int pc;

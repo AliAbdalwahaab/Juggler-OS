@@ -1,6 +1,8 @@
 package classes;
 
-public class Pair<I,J> {
+import java.io.Serializable;
+
+public class Pair<I,J> implements Serializable {
     public I key;
     public J val;
 

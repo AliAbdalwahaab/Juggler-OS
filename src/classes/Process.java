@@ -13,7 +13,8 @@ public class Process implements Serializable {
 
 
     // for a brand-new process
-    public Process(Vector<String> linesOfCode, int size) {
+    public Process(Vector<String> linesOfCode, int pid) {
+        this.pid = pid;
         this.state = ProcessState.READY;
         this.pc = 0;
         this.variables = new Pair[] {new Pair<>("null", null), new Pair<>("null", null), new Pair<>("null", null)};

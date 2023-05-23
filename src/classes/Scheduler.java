@@ -1,8 +1,11 @@
 package classes;
+
+import java.util.Vector;
+
 public class Scheduler {
-    public static SchedulerQueue readyQueue;
-    public static SchedulerQueue blockedQueue;
-    public static Pair<Integer, Integer> runningPid;
+    public SchedulerQueue readyQueue;
+    public SchedulerQueue blockedQueue;
+    public Pair<Integer, Integer> runningPid;
     public int timeSlice;
     public int cycles;
 

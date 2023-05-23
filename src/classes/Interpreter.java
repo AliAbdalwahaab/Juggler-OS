@@ -7,6 +7,14 @@ public class Interpreter {
     Memory memory;
     DiskManager diskManager;
     Scheduler scheduler;
+    Semaphore semaphore;
+
+    public Interpreter(Memory memory, DiskManager diskManager, Scheduler scheduler, Semaphore semaphore) {
+        this.memory = memory;
+        this.diskManager = diskManager;
+        this.scheduler = scheduler;
+        this.semaphore = semaphore;
+    }
 
     public void parseAndExecute(String line, int pid) throws Exception {
         String[] instructionComponents = line.split(" ");
@@ -25,13 +33,17 @@ public class Interpreter {
                     case "readFile":
                         String fileName = instructionComponents[3];
                         String data = diskManager.readFile(fileName);
-                        //shouldn't i return this data?
+                        // modify instruction
+                        memory.modifyAssignInstruction(pid, data, instructionComponents);
                         break;
                     case "input":
                         Scanner sc = new Scanner(System.in);
                         System.out.print("Please enter a value:");
                         String input = sc.nextLine();
-                        memory.assignVariable(varName, input, pid); break;
+                        // modify instruction
+                        memory.modifyAssignInstruction(pid, input, instructionComponents);
+                    default:
+                        memory.assignVariable(varName, instructionComponents[2], pid);
                 }
                 break;
             case "writeFile":
@@ -52,14 +64,14 @@ public class Interpreter {
                 }
                 break;
             case "semWait":
-                boolean available = Semaphore.semWait(getResourceType(instructionComponents[1]), pid);
+                boolean available = semaphore.semWait(getResourceType(instructionComponents[1]), pid, scheduler);
                 if (!available) {
                     //block process
                     scheduler.addFromRunningToBlockedQueue();
                 }
                 break;
             case "semSignal":
-                Semaphore.semSignal(getResourceType(instructionComponents[1]), pid); break;
+                semaphore.semSignal(getResourceType(instructionComponents[1]), pid, scheduler); break;
             default:
                 System.out.println("Invalid instruction");
                 System.exit(1);

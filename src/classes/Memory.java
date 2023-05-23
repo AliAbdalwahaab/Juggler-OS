@@ -5,10 +5,10 @@ import java.util.Stack;
 import java.util.Vector;
 
 public class Memory {
-    static Object[] memory = new Object[40]; // Store PCBs at the start of each process block
-    static int availableSpace;
-    static HashSet<Integer> pids;
-    static int pidCounter;
+    Object[] memory = new Object[40]; // Store PCBs at the start of each process block
+    int availableSpace;
+    HashSet<Integer> pids;
+    int pidCounter;
 
     public Memory() {
         availableSpace = 40;
@@ -78,7 +78,7 @@ public class Memory {
         return null;
     }
 
-    public String getNextInstructionAndIncrementPC(int pid){
+    public String getNextInstructionAndIncrementPC(int pid, Scheduler scheduler){
         // get process base address
         int base = getPidBase(pid);
         if (base == -1) {
@@ -88,11 +88,14 @@ public class Memory {
         // get lines of code base
         int codeBase = (int) memory[base + 7];
         int pc = (int) memory[base + 2];
-        memory[base + 2] = pc + 1; // increment pc
+        if (!(((String) memory[codeBase + pc]).contains("readFile") || ((String) memory[codeBase + pc]).contains("input"))) {
+            memory[base + 2] = pc + 1; // increment pc
+        }
         Pair<Integer, Integer> startEndBlock = (Pair<Integer, Integer>) memory[base + 3];
         if (pc > startEndBlock.val) {
             System.out.println("Process " + pid + " is executing the last instruction.");
             removeProcessAndShift(pid);
+            scheduler.removePid(pid);
             // TODO Other classes should check if pid exists from getPids before calling this method
             pids.remove(pid);
         }
@@ -101,6 +104,17 @@ public class Memory {
 
     public HashSet<Integer> getPids() {
         return pids;
+    }
+
+    public void modifyAssignInstruction(int pid, Object value, String[] instruction) {
+        int base = getPidBase(pid);
+        if (base == -1) {
+            return;
+        }
+
+        int codeBase = (int) memory[base + 7];
+        int pc = (int) memory[base + 2];
+        memory[codeBase + pc] = instruction[0] + " " + instruction[1] + " " + value;
     }
 
 
@@ -312,5 +326,9 @@ public class Memory {
 
     public boolean inMemory (int pid) {
         return getPidBase(pid) != -1;
+    }
+
+    public int getNewProcessId() {
+        return pidCounter++;
     }
 }

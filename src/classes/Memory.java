@@ -112,7 +112,7 @@ public class Memory {
             return;
         }
 
-        int codeBase = (int) memory[base + 7];
+        int codeBase = base + 7;
         int pc = (int) memory[base + 2];
         memory[codeBase + pc] = instruction[0] + " " + instruction[1] + " " + value;
     }
@@ -133,27 +133,33 @@ public class Memory {
         int processSize = startEndBlock.val - startEndBlock.key + 1;
         int lastPopulatedIndex = 40 - availableSpace - 1;
 
-        // shift memory
-        Pair<Integer, Integer> startEndBlockCurr = new Pair<>();
-        int currBlockSize = 0;
-        int j = base;
-        for (int i = startEndBlock.key + 1, k = 0; i < lastPopulatedIndex ; i++, j++, k++) {
-            if (k == 3) { // boundary block
-                startEndBlockCurr = (Pair<Integer, Integer>) memory[i];
-                currBlockSize = startEndBlockCurr.val - startEndBlockCurr.key + 1;
-                memory[j] = new Pair<>(j - 3, (j - 3) + currBlockSize - 1);
+        if (lastPopulatedIndex > startEndBlock.val) { // more processes after the one to be removed
+            // shift memory
+            Pair<Integer, Integer> startEndBlockCurr = new Pair<>();
+            int currBlockSize = 0;
+            int j = base;
+            for (int i = startEndBlock.key + 1, k = 0; i < lastPopulatedIndex; i++, j++, k++) {
+                if (k == 3) { // boundary block
+                    startEndBlockCurr = (Pair<Integer, Integer>) memory[i];
+                    currBlockSize = startEndBlockCurr.val - startEndBlockCurr.key + 1;
+                    memory[j] = new Pair<>(j - 3, (j - 3) + currBlockSize - 1);
+                }
+
+                if (k > 3 && j == startEndBlockCurr.val) {
+                    k = -1;
+                }
+
+                memory[j] = memory[i];
             }
 
-            if (j == startEndBlockCurr.val) {
-                k = -1;
+            // fill the rest of the memory with null
+            for (int i = j; i < 40; i++) {
+                memory[i] = null;
             }
-
-            memory[j] = memory[i];
-        }
-
-        // fill the rest of the memory with null
-        for (int i = j; i < 40; i++) {
-            memory[i] = null;
+        } else {
+            for (int i = startEndBlock.key; i <= startEndBlock.val; i++) {
+                memory[i] = null;
+            }
         }
 
         // update available space
@@ -162,7 +168,7 @@ public class Memory {
 
     public void swapProcessFromDisk(int pidFromDisk, DiskManager disk, Scheduler scheduler) throws Exception {
         // get the swappable process from ram
-        int swappableOnRam = findOptimalSwappableProcess(pidFromDisk, scheduler, disk);
+        int swappableOnRam = findOptimalSwappableProcess(pidFromDisk, null, scheduler, disk, true);
         if (swappableOnRam == -1) {
             System.out.println("No swappable process found in ram.");
             return;
@@ -198,12 +204,29 @@ public class Memory {
         return (ramProcessSize + availableSpace >= diskProcess.size);
     }
 
-    public int findOptimalSwappableProcess(int pidFromDisk, Scheduler scheduler, DiskManager disk) throws Exception {
+    public boolean areSwappableRAM(int pidFromRam, Process p) throws Exception {
+        // get process base address
+        int base = getPidBase(pidFromRam);
+        if (base == -1) {
+            return false;
+        }
+        Pair<Integer, Integer> startEndBlock = (Pair<Integer, Integer>) memory[base + 3];
+        int ramProcessSize = startEndBlock.val - startEndBlock.key + 1;
+        return (ramProcessSize + availableSpace >= p.size);
+    }
+
+    public int findOptimalSwappableProcess(int pidFromDisk, Process p, Scheduler scheduler, DiskManager disk , boolean withDisk) throws Exception {
         // get process on disk
         HashSet<Integer> swappablePids = new HashSet<>();
         for (int pid : pids) {
-            if (areSwappable(pid, pidFromDisk, disk)) {
-                swappablePids.add(pid);
+            if(withDisk) {
+                if (areSwappable(pid, pidFromDisk, disk)) {
+                    swappablePids.add(pid);
+                }
+            } else {
+                if (areSwappableRAM(pid, p)) {
+                    swappablePids.add(pid);
+                }
             }
         }
 
@@ -252,6 +275,8 @@ public class Memory {
         return firstPidToSwap;
     }
 
+
+
     public int addNewProcess(Process p, Scheduler scheduler, DiskManager disk) throws Exception {
         if (pids.contains(p.pid)) {
             System.out.println("Process with pid " + p.pid + " already exists.");
@@ -259,7 +284,7 @@ public class Memory {
         }
 
         if (p.size > availableSpace) {
-            int pidToSwap = findOptimalSwappableProcess(p.pid, scheduler, disk);
+            int pidToSwap = findOptimalSwappableProcess(-1, p, scheduler, disk, false);
             if (pidToSwap == -1) {
                 System.out.println("Process with pid " + p.pid + " cannot be added. Not enough memory, even after attempting a swap.");
                 return -1;
@@ -307,7 +332,7 @@ public class Memory {
         for (int i = 0; i < 3; i++) {
             variables[i] = (Pair<String, Object>) memory[base + 4 + i];
         }
-        int codeBase = (int) memory[base + 7];
+        int codeBase = base + 7;
         Vector<String> linesOfCode = new Vector<>();
         for (int i = 0, n = startEndBlock.key - (base + 7) + 1; i < n; i++) {
             linesOfCode.add((String) memory[base + 7 + i]);
@@ -316,7 +341,7 @@ public class Memory {
         return p;
     }
 
-    public void setState (int pid,  ProcessState state) {
+    public void setState(int pid,  ProcessState state) {
         int base = getPidBase(pid);
         if (base != -1) {
             memory[base + 1] = state;

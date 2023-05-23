@@ -39,7 +39,7 @@ public class Interpreter {
                         break;
                     case "input":
                         Scanner sc = new Scanner(System.in);
-                        System.out.print("Please enter a value:");
+                        System.out.print("Please enter a value: ");
                         String input = sc.nextLine();
                         // modify instruction
                         memory.modifyAssignInstruction(pid, input, instructionComponents);
@@ -69,6 +69,7 @@ public class Interpreter {
                 if (!available) {
                     //block process
                     scheduler.addFromRunningToBlockedQueue();
+                    memory.setState(pid, ProcessState.BLOCKED);
                 }
                 break;
             case "semSignal":

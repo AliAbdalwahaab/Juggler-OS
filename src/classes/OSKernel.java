@@ -1,5 +1,7 @@
 package classes;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
@@ -43,17 +45,21 @@ public class OSKernel {
             String line = memory.getNextInstructionAndIncrementPC(runningPid, scheduler);
             interpreter.parseAndExecute(line, runningPid);
             scheduler.oneCyclePassed();
-            processesDone = scheduler.readyQueue.size() + scheduler.blockedQueue.size() == 0;
+            processesDone = scheduler.readyQueue.size() + scheduler.blockedQueue.size() == 0 && scheduler.runningPid == null;
 
         }
     }
 
     public void createProcess(int n) throws Exception {
         // read from text file
-        String instructions = new String(Files.readAllBytes(Paths.get("src/Project Programs/Program_" + n + ".txt")));
-        String[] instArr = instructions.split("\\n");
+
+
         Vector<String> instructionsVector = new Vector<>();
-        instructionsVector.addAll(Arrays.asList(instArr));
+        BufferedReader br = new BufferedReader(new FileReader("src/Project Programs/Program_" + n + ".txt"));
+        while (br.ready()) {
+            String line = br.readLine();
+            instructionsVector.add(line);
+        }
         int newPid = memory.getNewProcessId();
         Process process = new Process(instructionsVector, newPid);
         memory.addNewProcess(process, scheduler, disk);

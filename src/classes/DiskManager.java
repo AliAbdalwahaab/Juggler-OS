@@ -24,17 +24,21 @@ public class DiskManager {
         return data;
     }
 
-    public Process swapProcessFromRam(int pidOnDisk, Process processOnRam){
+    public Process swapProcessFromRam(int pidOnDisk, Process processOnRam) throws Exception {
+        deserializeProcesses();
         disk.add(processOnRam);
         for(Process p: disk){
             if(p.pid == pidOnDisk){
                 disk.remove(p);
+                serializeProcesses();
                 return p;
             }
         }
         return null;
     }
-    public Process getProcess(int pidOnDisk){
+
+    public Process getProcess(int pidOnDisk) throws Exception {
+        deserializeProcesses();
         for(Process p: disk){
             if(p.pid == pidOnDisk)
                 return p;
@@ -42,19 +46,20 @@ public class DiskManager {
         return null;
     }
 
-    public void addProcess(Process newProcess){
+    public void addProcess(Process newProcess) throws Exception {deserializeProcesses();
         disk.add(newProcess);
+        serializeProcesses();
     }
 
     public void serializeProcesses() throws Exception{
-        FileOutputStream fos = new FileOutputStream(dir + "disk.tmp");
+        FileOutputStream fos = new FileOutputStream(dir + "disk.ser");
         ObjectOutputStream oos = new ObjectOutputStream(fos);
         oos.writeObject(disk);
         oos.close();
     }
 
     public void deserializeProcesses() throws Exception{
-        FileInputStream fis = new FileInputStream(dir + "disk.tmp");
+        FileInputStream fis = new FileInputStream(dir + "disk.ser");
         ObjectInputStream ois = new ObjectInputStream(fis);
         disk = (Vector<Process>) ois.readObject();
         ois.close();

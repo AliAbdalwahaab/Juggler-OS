@@ -146,7 +146,7 @@ public class Memory {
         availableSpace += processSize;
     }
 
-    public void swapProcessFromDisk(int pidFromDisk, DiskManager disk, Scheduler scheduler){
+    public void swapProcessFromDisk(int pidFromDisk, DiskManager disk, Scheduler scheduler) throws Exception {
         // get the swappable process from ram
         int swappableOnRam = findOptimalSwappableProcess(pidFromDisk, scheduler, disk);
         if (swappableOnRam == -1) {
@@ -165,7 +165,7 @@ public class Memory {
         addNewProcess(onDisk, scheduler, disk);
     }
 
-    public boolean areSwappable(int pidFromRam, int pidFromDisk, DiskManager disk){
+    public boolean areSwappable(int pidFromRam, int pidFromDisk, DiskManager disk) throws Exception {
         // get process base address
         int base = getPidBase(pidFromRam);
         if (base == -1) {
@@ -184,7 +184,7 @@ public class Memory {
         return (ramProcessSize + availableSpace >= diskProcess.size);
     }
 
-    public int findOptimalSwappableProcess(int pidFromDisk, Scheduler scheduler, DiskManager disk){
+    public int findOptimalSwappableProcess(int pidFromDisk, Scheduler scheduler, DiskManager disk) throws Exception {
         // get process on disk
         HashSet<Integer> swappablePids = new HashSet<>();
         for (int pid : pids) {
@@ -238,7 +238,7 @@ public class Memory {
         return firstPidToSwap;
     }
 
-    public int addNewProcess(Process p, Scheduler scheduler, DiskManager disk){
+    public int addNewProcess(Process p, Scheduler scheduler, DiskManager disk) throws Exception {
         if (pids.contains(p.pid)) {
             System.out.println("Process with pid " + p.pid + " already exists.");
             return -1;

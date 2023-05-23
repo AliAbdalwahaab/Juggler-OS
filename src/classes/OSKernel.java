@@ -9,7 +9,7 @@ import java.util.Vector;
 
 public class OSKernel {
     public Memory memory;
-    public static Scheduler scheduler;
+    public Scheduler scheduler;
     public DiskManager disk;
     public Interpreter interpreter;
     public Semaphore semaphore;
@@ -54,5 +54,41 @@ public class OSKernel {
         Process process = new Process(instructionsVector, newPid);
         memory.addNewProcess(process, scheduler, disk);
         scheduler.addToReadyQueue(newPid, true);
+    }
+
+    public void promptUser() throws Exception {
+        System.out.println("==========================================");
+        System.out.println("       Welcome to the Juggler Kernel!");
+        System.out.println("       -------------------------          ");
+        System.out.println("Initating Simulation Parameters...");
+        showTerminalLoading();
+    }
+
+    public static void showTerminalLoading() {
+        int totalFrames = 20;
+        int animationSpeed = 200; // in milliseconds
+
+        for (int i = 0; i < totalFrames; i++) {
+            try {
+                Thread.sleep(animationSpeed);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+            String[] loadingFrames = {"/", "|", "\\", "-"};
+
+            System.out.print("\rLoading... [" + getLoadingBar(i, loadingFrames) + "]");
+        }
+
+        System.out.println("\nLoading complete!");
+    }
+
+    private static String getLoadingBar(int index, String[] loadingFrames) {
+        return loadingFrames[index % loadingFrames.length];
+    }
+
+    public static void main(String[] args) throws Exception {
+        OSKernel os = new OSKernel();
+        os.promptUser();
     }
 }

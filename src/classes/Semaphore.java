@@ -17,10 +17,10 @@ public class Semaphore {
         fileUsed = false;
     }
 
-    public void semSignal(ResourceType resource, int pid, Scheduler scheduler, DiskManager disk) throws Exception {
+    public void semSignal(ResourceType resource, int pid, Scheduler scheduler, DiskManager disk, Memory memory) throws Exception {
         if (scheduler.runningPid.key == pid){ //check if the process letting go of the resource is the running process
             int unblockPid = -1;
-            scheduler.addFromBlockedQueueToReady(pid);
+
             if (resource.equals(ResourceType.userInput) && userInputUsed) {
 
                 //Mark the resource as available
@@ -53,6 +53,7 @@ public class Semaphore {
             if (unblockPid != -1) {
                 scheduler.addFromBlockedQueueToReady(unblockPid);
                 disk.setState(unblockPid, ProcessState.READY);
+                memory.setState(unblockPid, ProcessState.READY);
             }
         }
     }

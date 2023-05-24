@@ -11,14 +11,14 @@ public class DiskManager {
     public Vector<Process> disk = new Vector<>();
     public static final String dir = "src/main/resources/";
 
-    public static void writeFile(String fileName, String data) throws Exception{
+    public void writeFile(String fileName, String data) throws Exception{
         FileWriter write = new FileWriter((dir + fileName + ".txt"), false);
         PrintWriter print_line = new PrintWriter(write);
         print_line.print(data);
         print_line.close();
     }
 
-    public static String readFile(String fileName) throws Exception{
+    public String readFile(String fileName) throws Exception{
         String data = "";
         data = new String(Files.readAllBytes(Paths.get(dir + fileName + ".txt")));
         return data;
@@ -31,6 +31,7 @@ public class DiskManager {
             if(p.pid == pidOnDisk){
                 disk.remove(p);
                 serializeProcesses();
+                System.out.println("Swapped process with PID " + pidOnDisk + " from Disk to RAM");
                 return p;
             }
         }
@@ -44,6 +45,17 @@ public class DiskManager {
                 return p;
         }
         return null;
+    }
+
+    public void removeProcess(int pid) throws Exception {
+        deserializeProcesses();
+        for (Process p: disk) {
+            if (p.pid == pid) {
+                disk.remove(p);
+                serializeProcesses();
+                return;
+            }
+        }
     }
 
     public void setState(int pidOnDisk, ProcessState state) throws Exception {
@@ -80,7 +92,7 @@ public class DiskManager {
 
     public void printDisk() throws Exception{
         deserializeProcesses();
-        System.out.println("=====================================");
+        //System.out.println("=====================================");
         System.out.println("Disk Contents:");
         for(Process p: disk){
             System.out.println("Process ID " + p.pid);
@@ -89,7 +101,8 @@ public class DiskManager {
     }
 
     public static void main(String[] args) throws Exception {
-        writeFile("t", "I really the");
+        DiskManager disk = new DiskManager();
+        disk.writeFile("t", "I really the");
     }
 
 }

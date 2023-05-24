@@ -1,5 +1,6 @@
 package classes;
 
+import javax.swing.text.StyledEditorKit;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.nio.file.Files;
@@ -16,8 +17,8 @@ public class OSKernel {
 
     public void runOS() throws Exception {
         memory = new Memory();
-        scheduler = new Scheduler(2);
         disk = new DiskManager();
+        scheduler = new Scheduler(2, memory, disk);
         semaphore = new Semaphore();
         interpreter = new Interpreter(memory, disk, scheduler, semaphore);
 
@@ -36,8 +37,9 @@ public class OSKernel {
 
             // get next process from ready queue
             int runningPid = scheduler.getCurrentProcess();
-            System.out.println("=====================================");
+            System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             System.out.println("Cycle: " + scheduler.cycles);
+            System.out.println("Running Process ID: " + runningPid);
             System.out.print("Ready Queue: ");
             scheduler.readyQueue.print();
             System.out.print("Blocked Queue: ");
@@ -50,15 +52,20 @@ public class OSKernel {
             semaphore.fileBlockedQueue.print();
 
 
-            System.out.println("Running Process ID: " + runningPid);
             if (runningPid == -1) {
                 System.out.println("No process is running");
                 scheduler.oneCyclePassed();
                 continue;
             }
-            String line = memory.getNextInstructionAndIncrementPC(runningPid, disk, scheduler);
-            interpreter.parseAndExecute(line, runningPid);
+//            memory.setState(runningPid, ProcessState.RUNNING);
+            Pair<String, Boolean> instruction = memory.getNextInstructionAndIncrementPC(runningPid, disk, scheduler);
+            interpreter.parseAndExecute(instruction.key, runningPid, instruction.val);
             scheduler.oneCyclePassed();
+//            int nextRunningPid = scheduler.getCurrentProcess();
+//            if (nextRunningPid != -1 && nextRunningPid != runningPid) {
+//                memory.setState(runningPid, ProcessState.READY);
+//                disk.setState(runningPid, );
+//            }
             memory.printMemory();
             disk.printDisk();
             processesDone = scheduler.readyQueue.size() + scheduler.blockedQueue.size() == 0 && scheduler.runningPid == null;

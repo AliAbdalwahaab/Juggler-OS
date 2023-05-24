@@ -37,6 +37,24 @@ public class Memory {
         return -1; // pid not found
     }
 
+    public int tryGetPidBase(int pid) {
+        if (!pids.contains(pid)) {
+            return -1;
+        }
+
+        int k = 0;
+        Pair<Integer, Integer> startEndBlock = new Pair<>();
+        for (int base = 0, process = 0; process < pids.size(); base += k, process++) {
+            startEndBlock = (Pair<Integer, Integer>) memory[base + 3];
+            if ((int) memory[base] != pid) {
+                k = startEndBlock.val - startEndBlock.key + 1;
+            } else {
+                return base; // pid found
+            }
+        }
+        return -1; // pid not found
+    }
+
     public void assignVariable(String varname, Object value, int pid){
         // get process base address
         int base = getPidBase(pid);
@@ -78,16 +96,23 @@ public class Memory {
         return null;
     }
 
-    public String getNextInstructionAndIncrementPC(int pid, DiskManager disk, Scheduler scheduler) throws Exception {
+    public Pair<String, Boolean> getNextInstructionAndIncrementPC(int pid, DiskManager disk, Scheduler scheduler) throws Exception {
         // get process base address
         if (!pids.contains(pid)) {
-            swapProcessFromDisk(pid, disk, scheduler);
+            Process p = disk.getProcess(pid);
+            if (p.size > availableSpace) {
+                swapProcessFromDisk(pid, disk, scheduler);
+            } else {
+                addNewProcess(p, scheduler, disk);
+            }
         }
 
         int base = getPidBase(pid);
         if (base == -1) {
             return null;
         }
+
+        boolean remove = false;
 
         // get lines of code base
         int codeBase = base + 7;
@@ -97,14 +122,25 @@ public class Memory {
             memory[base + 2] = pc + 1; // increment pc
         }
         Pair<Integer, Integer> startEndBlock = (Pair<Integer, Integer>) memory[base + 3];
-        if (pc == startEndBlock.val) {
+        if (codeBase + pc == startEndBlock.val) {
             System.out.println("Process " + pid + " is executing the last instruction.");
-            removeProcessAndShift(pid);
-            scheduler.removePid(pid);
+            remove = true;
             // TODO Other classes should check if pid exists from getPids before calling this method
-            pids.remove(pid);
         }
-        return (String) memory[codeBase + pc];
+        return new Pair<>((String) memory[codeBase + pc], remove);
+    }
+
+    public void decrementPc(int pid) {
+        // get process base address
+        int base = getPidBase(pid);
+        if (base == -1) {
+            return;
+        }
+
+        // get lines of code base
+        int codeBase = base + 7;
+        int pc = (int) memory[base + 2];
+        memory[base + 2] = pc - 1; // decrement pc
     }
 
     public HashSet<Integer> getPids() {
@@ -143,7 +179,7 @@ public class Memory {
             Pair<Integer, Integer> startEndBlockCurr = new Pair<>();
             int currBlockSize = 0;
             int j = base;
-            for (int i = startEndBlock.val + 1, k = 0; i < lastPopulatedIndex; i++, j++, k++) {
+            for (int i = startEndBlock.val + 1, k = 0; i <= lastPopulatedIndex; i++, j++, k++) {
                 if (k > 3 && j == startEndBlockCurr.val) {
                     k = -1;
                 }
@@ -167,8 +203,8 @@ public class Memory {
             }
         }
 
-        System.out.println("AFTER SHIFTING");
-        printMemory();
+        //System.out.println("AFTER SHIFTING");
+        //printMemory();
 
         // update available space
         availableSpace += processSize;
@@ -187,12 +223,13 @@ public class Memory {
 
         // switch with process on disk
         Process onDisk = disk.swapProcessFromRam(pidFromDisk, onRam);
-        System.out.println("process from disk-----");
-        onDisk.printProcess();
+        //System.out.println("process from disk-----");
+        //onDisk.printProcess();
 
         // remove process from ram and add process from disk
         removeProcessAndShift(swappableOnRam);
         addNewProcess(onDisk, scheduler, disk);
+        System.out.println("Process with PID " + swappableOnRam + " swapped from RAM to Disk.");
     }
 
     public boolean areSwappable(int pidFromRam, int pidFromDisk, DiskManager disk) throws Exception {
@@ -326,7 +363,11 @@ public class Memory {
         // update pids
         pids.add(p.pid);
 
+
+        //System.out.println("AFTER ADD PROCESS");
+        //printMemory();
         return p.pid; // return the new pid
+
     }
 
     public Process getProcessBlock(int pid){
@@ -345,15 +386,15 @@ public class Memory {
         }
         int codeBase = base + 7;
         Vector<String> linesOfCode = new Vector<>();
-        for (int i = 0, n = startEndBlock.key - (base + 7) + 1; i < n; i++) {
-            linesOfCode.add((String) memory[base + 7 + i]);
+        for (int i = base + 7; i <= startEndBlock.val; i++) {
+            linesOfCode.add((String) memory[i]);
         }
         Process p = new Process(pid, state, pc,  variables,  linesOfCode);
         return p;
     }
 
     public void setState(int pid,  ProcessState state) {
-        int base = getPidBase(pid);
+        int base = tryGetPidBase(pid);
         if (base != -1) {
             memory[base + 1] = state;
         }

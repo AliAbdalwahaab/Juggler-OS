@@ -16,7 +16,7 @@ public class Interpreter {
         this.semaphore = semaphore;
     }
 
-    public void parseAndExecute(String line, int pid) throws Exception {
+    public void parseAndExecute(String line, int pid, boolean removeAfter) throws Exception {
         System.out.println("Process " + pid + " Executing line: " + line);
         String[] instructionComponents = line.split(" ");
         switch(instructionComponents[0]) {
@@ -32,7 +32,7 @@ public class Interpreter {
                 String varName = instructionComponents[1];
                 switch(instructionComponents[2]) {
                     case "readFile":
-                        String fileName = instructionComponents[3];
+                        String fileName = (String) memory.getVariable(pid, instructionComponents[3]);
                         String data = diskManager.readFile(fileName);
                         // modify instruction
                         memory.modifyAssignInstruction(pid, data, instructionComponents);
@@ -53,7 +53,7 @@ public class Interpreter {
                 diskManager.writeFile(fileNameForWrite, dataForWrite);
                 break;
             case "readFile":
-                String fileName = instructionComponents[3];
+                String fileName = (String) memory.getVariable(pid, instructionComponents[1]);;
                 String data = diskManager.readFile(fileName);
                 //shouldn't i return this data?
                 break;
@@ -70,13 +70,20 @@ public class Interpreter {
                     //block process
                     scheduler.addFromRunningToBlockedQueue();
                     memory.setState(pid, ProcessState.BLOCKED);
+                    memory.decrementPc(pid);
                 }
                 break;
             case "semSignal":
-                semaphore.semSignal(getResourceType(instructionComponents[1]), pid, scheduler, diskManager); break;
+                semaphore.semSignal(getResourceType(instructionComponents[1]), pid, scheduler, diskManager, memory); break;
             default:
                 System.out.println("Invalid instruction");
                 System.exit(1);
+        }
+        if (removeAfter) {
+            memory.removeProcessAndShift(pid);
+            scheduler.removePid(pid);
+            memory.pids.remove(pid);
+            diskManager.removeProcess(pid);
         }
 
     }

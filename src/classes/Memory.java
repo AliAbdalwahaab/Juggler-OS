@@ -409,7 +409,9 @@ public class Memory {
     }
 
     public void printMemory() {
-        System.out.println("=====================================");
+        String gc = "\u001B[32m";
+        String rc = "\u001B[34m";
+        System.out.println(rc+"=====================================");
         System.out.println("|          Memory Contents          |");
         System.out.println("=====================================");
         Pair<Integer, Integer> startEndBlockCurr = new Pair<>();
@@ -443,7 +445,8 @@ public class Memory {
             System.out.println(i + "- " + lid + memory[i]);
             if (separate) System.out.println("-------------------------------------");
         }
-        System.out.println("=====================================");
+        System.out.println("\u001B[33m"+"=====================================");
+        System.out.print(gc);
 
     }
 }

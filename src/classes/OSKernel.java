@@ -94,7 +94,9 @@ public class OSKernel {
 
     public void promptUser() throws Exception {
         Scanner sc = new Scanner(System.in);
-        System.out.println("==================================================");
+        String gc = "\u001B[32m";
+        String rc = "\u001B[31m";
+        System.out.println(gc+"==================================================");
         System.out.println("      -------------------------------------       ");
         System.out.println("      | Welcome to the Juggler OS Kernel! |       ");
         System.out.println("      -------------------------------------       ");

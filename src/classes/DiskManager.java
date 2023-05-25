@@ -92,12 +92,15 @@ public class DiskManager {
 
     public void printDisk() throws Exception{
         deserializeProcesses();
+        String gc = "\u001B[32m";
+        String rc = "\u001B[33m";
         //System.out.println("=====================================");
-        System.out.println("Disk Contents:");
+        System.out.println(rc+"Disk Contents:");
         for(Process p: disk){
             System.out.println("Process ID " + p.pid);
         }
         System.out.println("=====================================");
+        System.out.print(gc);
     }
 
     public static void main(String[] args) throws Exception {

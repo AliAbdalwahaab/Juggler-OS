@@ -21,6 +21,10 @@ public class OSKernel {
 
         processArrival = new HashMap<>();
         promptUser();
+        if (processArrival.size() == 0) {
+            System.out.println("No processes to run!");
+            return;
+        }
 
         disk.serializeProcesses();
 

@@ -20,6 +20,7 @@ public class Interpreter {
 
     public void parseAndExecute(String line, int pid, boolean removeAfter) throws Exception {
         System.out.println("Process " + pid + " Executing line: " + line);
+
         String[] instructionComponents = line.split(" ");
         switch(instructionComponents[0]) {
             case "print":

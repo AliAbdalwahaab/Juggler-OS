@@ -72,15 +72,8 @@ public class Scheduler {
             memory.setState(prevRunningProccesID, ProcessState.BLOCKED);
             disk.setState(prevRunningProccesID, ProcessState.BLOCKED);
             // TODO in OSKernel class: we need also to go the memory and change the state of the old running process from running to blocked.
-            // set the new running process from the ready queue.
-            if (!readyQueue.isEmpty()) {
-                setToRunning(readyQueue.remove());
-            }
-            else {
-                runningPid = null;
-            }
+            runningPid = null;
         }
-
     }
 
     public void setToRunning (int pid) throws Exception {
@@ -88,7 +81,6 @@ public class Scheduler {
         // TODO in OSKernel class: we need also to go the memory and change the state of the new running process from ready to running.
         runningPid = new Pair<>(pid, timeSlice);
         memory.setState(runningPid.key, ProcessState.RUNNING);
-        disk.setState(runningPid.key, ProcessState.RUNNING);
     }
 
     public void addFromBlockedQueueToReady (int pid) throws Exception {
@@ -137,6 +129,11 @@ public class Scheduler {
             runningPid.val--;
             if (runningPid.val == 0) {
                 addFromRunningToReadyQueue();
+            }
+        }
+        else {
+            if (!readyQueue.isEmpty()) {
+                setToRunning(readyQueue.remove());
             }
         }
         cycles++;

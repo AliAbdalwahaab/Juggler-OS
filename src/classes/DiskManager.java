@@ -3,6 +3,7 @@ package classes;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 import java.util.Vector;
 
 
@@ -98,6 +99,11 @@ public class DiskManager {
         System.out.println(rc+"Disk Contents:");
         for(Process p: disk){
             System.out.println("Process ID " + p.pid);
+            System.out.println("Process State " + p.state);
+            System.out.println("Process Instructions " + p.linesOfCode.toString());
+            System.out.println("Process Variables " + Arrays.toString(p.variables));
+            System.out.println("-------------------------------------");
+
         }
         System.out.println("=====================================");
         System.out.print(gc);

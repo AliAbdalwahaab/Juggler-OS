@@ -43,6 +43,7 @@ public class OSKernel {
             System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
             System.out.println("Cycle: " + scheduler.cycles);
             System.out.println("Running Process ID: " + runningPid);
+            System.out.println("remaining instructions: " + scheduler.runningPid.val);
             System.out.print("Ready Queue: ");
             scheduler.readyQueue.print();
             System.out.print("Blocked Queue: ");

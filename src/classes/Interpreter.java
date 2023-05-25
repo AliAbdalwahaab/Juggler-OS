@@ -1,5 +1,6 @@
 package classes;
 
+import java.util.Arrays;
 import java.util.Scanner;
 
 public class Interpreter {
@@ -74,10 +75,16 @@ public class Interpreter {
                     scheduler.addFromRunningToBlockedQueue();
                     systemCall.memory.setState(pid, ProcessState.BLOCKED);
                     systemCall.memory.decrementPc(pid);
+                    System.out.println("Process " + pid + " blocked");
+                    System.out.println("Blocked queue: " + scheduler.blockedQueue);
                 }
                 break;
             case "semSignal":
-                semaphore.semSignal(getResourceType(instructionComponents[1]), pid, scheduler, disk, memory); break;
+                boolean changed = semaphore.semSignal(getResourceType(instructionComponents[1]), pid, scheduler, disk, memory);
+                if (changed) {
+                    System.out.println("Ready queue: " + scheduler.readyQueue);
+                }
+                break;
             default:
                 systemCall.println("Invalid instruction");
                 System.exit(1);

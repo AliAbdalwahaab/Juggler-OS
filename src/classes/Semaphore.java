@@ -23,7 +23,7 @@ public class Semaphore {
         filePid = -1;
     }
 
-    public void semSignal(ResourceType resource, int pid, Scheduler scheduler, DiskManager disk, Memory memory) throws Exception {
+    public boolean semSignal(ResourceType resource, int pid, Scheduler scheduler, DiskManager disk, Memory memory) throws Exception {
         if (scheduler.runningPid.key == pid){ //check if the process letting go of the resource is the running process
             int unblockPid = -1;
 
@@ -31,7 +31,7 @@ public class Semaphore {
 
                 if (userInputPid != pid) {
                     System.out.println("The process trying to release the resource is not the one that has it");
-                    return;
+                    return false;
                 }
 
                 //Mark the resource as available
@@ -47,7 +47,7 @@ public class Semaphore {
 
                 if (userOutputPid != pid) {
                     System.out.println("The process trying to release the resource is not the one that has it");
-                    return;
+                    return false;
                 }
 
                 //Mark the resource as available
@@ -63,7 +63,7 @@ public class Semaphore {
 
                 if (filePid != pid) {
                     System.out.println("The process trying to release the resource is not the one that has it");
-                    return;
+                    return false;
                 }
 
                 //Mark the resource as available
@@ -80,8 +80,11 @@ public class Semaphore {
                 scheduler.addFromBlockedQueueToReady(unblockPid);
                 disk.setState(unblockPid, ProcessState.READY);
                 memory.setState(unblockPid, ProcessState.READY);
+                System.out.println("Process " + unblockPid + " unblocked");
+                return true;
             }
         }
+        return false;
     }
 
     public boolean semWait(ResourceType resource, int pid, Scheduler scheduler){
@@ -120,7 +123,5 @@ public class Semaphore {
         }
         return false;
     }
-
-
 
 }

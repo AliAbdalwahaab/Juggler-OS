@@ -145,12 +145,14 @@ public class Scheduler {
 
     public void removePid (int pid) throws Exception {
         if (runningPid != null && runningPid.key == pid) {
-            if (!readyQueue.isEmpty()) {
-                setToRunning(readyQueue.remove());
-            }
-            else {
-                runningPid = null;
-            }
+//            if (!readyQueue.isEmpty()) {
+//                setToRunning(readyQueue.remove());
+//            }
+//            else {
+//                runningPid = null;
+//            }
+            runningPid = null;
+
         }
         else {
             SchedulerQueue tmpQueue = new SchedulerQueue();
@@ -163,7 +165,8 @@ public class Scheduler {
             while (!tmpQueue.isEmpty()) {
                 readyQueue.add(tmpQueue.remove());
             }
-            setToRunning(readyQueue.remove());
+            //runningPid = null;
+            //setToRunning(readyQueue.remove());
         }
     }
 }

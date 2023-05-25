@@ -47,4 +47,8 @@ public class SchedulerQueue {
     public void print() {
         System.out.println(queue);
     }
+
+    public String toString() {
+        return queue.toString();
+    }
 }

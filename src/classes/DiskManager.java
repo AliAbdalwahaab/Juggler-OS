@@ -94,7 +94,7 @@ public class DiskManager {
     public void printDisk() throws Exception{
         deserializeProcesses();
         String gc = "\u001B[32m";
-        String rc = "\u001B[33m";
+        String rc = "\u001B[93m";
         //System.out.println("=====================================");
         System.out.println(rc+"Disk Contents:");
         for(Process p: disk){

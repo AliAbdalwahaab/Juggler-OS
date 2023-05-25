@@ -11,7 +11,8 @@ public class OSKernel {
     public Interpreter interpreter;
     public Semaphore semaphore;
     public SystemCall systemCall;
-    public HashMap<Integer, Integer> processArrival; // arrival time, program number
+    public HashMap<Integer, Vector<Integer>> processArrival; // arrival time, program number
+
 
     public void runOS() throws Exception {
         memory = new Memory(40);
@@ -35,7 +36,9 @@ public class OSKernel {
         boolean processesDone = false;
         while(!processesDone) {
             if (processArrival.containsKey(scheduler.cycles)) {
-                createProcess(processArrival.get(scheduler.cycles));
+                for (int p: processArrival.get(scheduler.cycles)) {
+                    createProcess(p);
+                }
             }
 
             // get next process from ready queue
@@ -122,7 +125,16 @@ public class OSKernel {
                 break;
             }
             int arrivalCycle = Integer.parseInt(input);
-            processArrival.put(arrivalCycle, programNumber);
+            if (processArrival.containsKey(arrivalCycle)) {
+                Vector<Integer> programNumbers = processArrival.get(arrivalCycle);
+                programNumbers.add(programNumber);
+                processArrival.put(arrivalCycle, programNumbers);
+            } else {
+                Vector<Integer> programNumbers = new Vector<>();
+                programNumbers.add(programNumber);
+                processArrival.put(arrivalCycle, programNumbers);
+            }
+
         }
     }
 

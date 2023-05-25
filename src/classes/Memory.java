@@ -445,7 +445,7 @@ public class Memory {
             System.out.println(i + "- " + lid + memory[i]);
             if (separate) System.out.println("-------------------------------------");
         }
-        System.out.println("\u001B[33m"+"=====================================");
+        System.out.println("\u001B[93m"+"=====================================");
         System.out.print(gc);
 
     }

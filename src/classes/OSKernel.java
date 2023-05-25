@@ -10,14 +10,16 @@ public class OSKernel {
     public DiskManager disk;
     public Interpreter interpreter;
     public Semaphore semaphore;
+    public SystemCall systemCall;
     public HashMap<Integer, Integer> processArrival; // arrival time, program number
 
     public void runOS() throws Exception {
         memory = new Memory(40);
         disk = new DiskManager();
+        systemCall = new SystemCall(memory, disk);
         scheduler = new Scheduler(2, memory, disk);
         semaphore = new Semaphore();
-        interpreter = new Interpreter(memory, disk, scheduler, semaphore);
+        interpreter = new Interpreter(systemCall, scheduler, semaphore, disk, memory);
 
         processArrival = new HashMap<>();
         promptUser();

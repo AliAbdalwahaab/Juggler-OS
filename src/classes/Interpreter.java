@@ -4,16 +4,18 @@ import java.util.Scanner;
 
 public class Interpreter {
 
-    Memory memory;
-    DiskManager diskManager;
+    SystemCall systemCall;
     Scheduler scheduler;
     Semaphore semaphore;
+    DiskManager disk;
+    Memory memory;
 
-    public Interpreter(Memory memory, DiskManager diskManager, Scheduler scheduler, Semaphore semaphore) {
-        this.memory = memory;
-        this.diskManager = diskManager;
+    public Interpreter(SystemCall systemCall, Scheduler scheduler, Semaphore semaphore, DiskManager disk, Memory memory) {
+        this.systemCall = systemCall;
         this.scheduler = scheduler;
         this.semaphore = semaphore;
+        this.disk = disk;
+        this.memory = memory;
     }
 
     public void parseAndExecute(String line, int pid, boolean removeAfter) throws Exception {
@@ -23,7 +25,7 @@ public class Interpreter {
             case "print":
                 //if a process got to a print instruction then this means it is not blocked
                 //so we can print directly
-                Object var = memory.getVariable(pid, instructionComponents[1]);
+                Object var = systemCall.memory.getVariable(pid, instructionComponents[1]);
                 if (var != null) {
                     System.out.println(var);
                 }
@@ -32,36 +34,36 @@ public class Interpreter {
                 String varName = instructionComponents[1];
                 switch(instructionComponents[2]) {
                     case "readFile":
-                        String fileName = (String) memory.getVariable(pid, instructionComponents[3]);
-                        String data = diskManager.readFile(fileName);
+                        String fileName = (String) systemCall.memory.getVariable(pid, instructionComponents[3]);
+                        String data = systemCall.disk.readFile(fileName);
                         // modify instruction
-                        memory.modifyAssignInstruction(pid, data, instructionComponents);
+                        systemCall.memory.modifyAssignInstruction(pid, data, instructionComponents);
                         break;
                     case "input":
                         Scanner sc = new Scanner(System.in);
-                        System.out.print("Please enter a value: ");
+                        systemCall.print("Please enter a value: ");
                         String input = sc.nextLine();
                         // modify instruction
-                        memory.modifyAssignInstruction(pid, input, instructionComponents);
+                        systemCall.memory.modifyAssignInstruction(pid, input, instructionComponents);
                     default:
-                        memory.assignVariable(varName, instructionComponents[2], pid);
+                        systemCall.memory.assignVariable(varName, instructionComponents[2], pid);
                 }
                 break;
             case "writeFile":
-                String fileNameForWrite = (String) memory.getVariable(pid, instructionComponents[1]);
-                String dataForWrite = (String) memory.getVariable(pid, instructionComponents[2]);
-                diskManager.writeFile(fileNameForWrite, dataForWrite);
+                String fileNameForWrite = (String) systemCall.memory.getVariable(pid, instructionComponents[1]);
+                String dataForWrite = (String) systemCall.memory.getVariable(pid, instructionComponents[2]);
+                systemCall.disk.writeFile(fileNameForWrite, dataForWrite);
                 break;
             case "readFile":
-                String fileName = (String) memory.getVariable(pid, instructionComponents[1]);;
-                String data = diskManager.readFile(fileName);
+                String fileName = (String) systemCall.memory.getVariable(pid, instructionComponents[1]);;
+                String data = systemCall.disk.readFile(fileName);
                 //shouldn't i return this data?
                 break;
             case "printFromTo":
-                int from = Integer.parseInt((String) memory.getVariable(pid, instructionComponents[1])); //either this or .toString() the thing
-                int to = Integer.parseInt((String) memory.getVariable(pid, instructionComponents[2]));
+                int from = Integer.parseInt((String) systemCall.memory.getVariable(pid, instructionComponents[1])); //either this or .toString() the thing
+                int to = Integer.parseInt((String) systemCall.memory.getVariable(pid, instructionComponents[2]));
                 for (int i = from; i <= to; i++) {
-                    System.out.println(i);
+                    systemCall.println(i);
                 }
                 break;
             case "semWait":
@@ -69,21 +71,21 @@ public class Interpreter {
                 if (!available) {
                     //block process
                     scheduler.addFromRunningToBlockedQueue();
-                    memory.setState(pid, ProcessState.BLOCKED);
-                    memory.decrementPc(pid);
+                    systemCall.memory.setState(pid, ProcessState.BLOCKED);
+                    systemCall.memory.decrementPc(pid);
                 }
                 break;
             case "semSignal":
-                semaphore.semSignal(getResourceType(instructionComponents[1]), pid, scheduler, diskManager, memory); break;
+                semaphore.semSignal(getResourceType(instructionComponents[1]), pid, scheduler, disk, memory); break;
             default:
-                System.out.println("Invalid instruction");
+                systemCall.println("Invalid instruction");
                 System.exit(1);
         }
         if (removeAfter) {
-            memory.removeProcessAndShift(pid);
+            systemCall.memory.removeProcessAndShift(pid);
             scheduler.removePid(pid);
-            memory.pids.remove(pid);
-            diskManager.removeProcess(pid);
+            systemCall.memory.pids.remove(pid);
+            systemCall.disk.removeProcess(pid);
         }
 
     }

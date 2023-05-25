@@ -13,7 +13,7 @@ public class OSKernel {
     public HashMap<Integer, Integer> processArrival; // arrival time, program number
 
     public void runOS() throws Exception {
-        memory = new Memory();
+        memory = new Memory(40);
         disk = new DiskManager();
         scheduler = new Scheduler(2, memory, disk);
         semaphore = new Semaphore();

@@ -10,8 +10,8 @@ public class Memory {
     HashSet<Integer> pids;
     int pidCounter;
 
-    public Memory() {
-        availableSpace = 40;
+    public Memory(int size) {
+        availableSpace = size;
         pids = new HashSet<Integer>();
         pidCounter = 0;
     }
@@ -117,7 +117,7 @@ public class Memory {
         // get lines of code base
         int codeBase = base + 7;
         int pc = (int) memory[base + 2];
-        System.out.println("pid line : "+ memory[codeBase + pc]);
+        //System.out.println("pid line : "+ memory[codeBase + pc]);
         if (!(((String) memory[codeBase + pc]).contains("readFile") || ((String) memory[codeBase + pc]).contains("input"))) {
             memory[base + 2] = pc + 1; // increment pc
         }

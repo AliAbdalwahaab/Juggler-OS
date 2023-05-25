@@ -7,6 +7,9 @@ public class Semaphore {
     public static boolean userInputUsed;
     public static boolean userOutputUsed;
     public static boolean fileUsed;
+    public int userInputPid;
+    public int userOutputPid;
+    public int filePid;
 
     public Semaphore() {
         userInputBlockedQueue = new SchedulerQueue();
@@ -15,6 +18,9 @@ public class Semaphore {
         userInputUsed = false;
         userOutputUsed = false;
         fileUsed = false;
+        userInputPid = -1;
+        userOutputPid = -1;
+        filePid = -1;
     }
 
     public void semSignal(ResourceType resource, int pid, Scheduler scheduler, DiskManager disk, Memory memory) throws Exception {
@@ -23,6 +29,11 @@ public class Semaphore {
 
             if (resource.equals(ResourceType.userInput) && userInputUsed) {
 
+                if (userInputPid != pid) {
+                    System.out.println("The process trying to release the resource is not the one that has it");
+                    return;
+                }
+
                 //Mark the resource as available
                 userInputUsed = false; //Mark the resource as available
 
@@ -30,7 +41,14 @@ public class Semaphore {
                 if (!userInputBlockedQueue.isEmpty())
                     unblockPid = userInputBlockedQueue.remove();
 
+                userInputPid = -1;
+
             } else if (resource.equals(ResourceType.userOutput) && userOutputUsed) {
+
+                if (userOutputPid != pid) {
+                    System.out.println("The process trying to release the resource is not the one that has it");
+                    return;
+                }
 
                 //Mark the resource as available
                 userOutputUsed = false;
@@ -39,8 +57,14 @@ public class Semaphore {
                 if (!userOutputBlockedQueue.isEmpty())
                     unblockPid = userOutputBlockedQueue.remove();
 
+                userOutputPid = -1;
 
             } else if (resource.equals(ResourceType.file) && fileUsed) {
+
+                if (filePid != pid) {
+                    System.out.println("The process trying to release the resource is not the one that has it");
+                    return;
+                }
 
                 //Mark the resource as available
                 fileUsed = false;
@@ -48,6 +72,8 @@ public class Semaphore {
                 //remove Process from the resource blocked queue if it were there after a failed request before
                 if (!fileBlockedQueue.isEmpty())
                     unblockPid = fileBlockedQueue.remove();
+
+                filePid = -1;
 
             }
             if (unblockPid != -1) {
@@ -65,14 +91,17 @@ public class Semaphore {
             // if the resource is available, mark it as used and return true
             if (resource.equals(ResourceType.userInput) && !userInputUsed) {
                 userInputUsed = true;
+                userInputPid = pid;
                 return true;
 
             } else if (resource.equals(ResourceType.userOutput) && !userOutputUsed) {
                 userOutputUsed = true;
+                userOutputPid = pid;
                 return true;
 
             } else if (resource.equals(ResourceType.file) && !fileUsed) {
                 fileUsed = true;
+                filePid = pid;
                 return true;
 
                 // if the resource is not available, add the process to the blocked queue of that resource and return false
